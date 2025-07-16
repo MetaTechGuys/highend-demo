@@ -79,7 +79,7 @@ const Hero: React.FC = () => {
           <div className="hero-main-image">
             <div className="image-container">
               <Image
-                src="/images/main.webp"
+                src="/images/Main.webp"
                 alt="Main Hero Image"
                 fill
                 className="main-image"
