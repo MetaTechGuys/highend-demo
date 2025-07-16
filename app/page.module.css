@@ -12,16 +12,6 @@
   font-family: var(--font-geist-sans);
 
 }
-*{
-  ::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: transparent;
-}
-}
 
 .main {
   display: flex;
