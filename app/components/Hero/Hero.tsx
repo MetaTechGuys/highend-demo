@@ -124,7 +124,7 @@ const Hero: React.FC = () => {
                   transform: `translateX(-${currentSlide * (100 / slides.length)}%)`
                 }}
               >
-                {slides.map((slide, index) => (
+                {slides.map((slide) => (
                   <div 
                     key={slide.id} 
                     className="slide"

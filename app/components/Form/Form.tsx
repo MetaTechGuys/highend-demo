@@ -79,7 +79,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
 
   const totalSteps = 5;
 
-  const handleInputChange = (field: keyof FormData, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string | number | boolean | string[]) => {
     setFormData(prev => ({
       ...prev,
       [field]: value

@@ -14,7 +14,6 @@ interface LocationProps {
   mapHeight?: string;
   showDirectionsButton?: boolean;
   address?: string;
-  onBackToContactDetails?: () => void;
 }
 
 const Location: React.FC<LocationProps> = ({
@@ -25,8 +24,7 @@ const Location: React.FC<LocationProps> = ({
   zoom = 15,
   mapHeight = '400px',
   showDirectionsButton = true,
-  address,
-  onBackToContactDetails
+  address
 }) => {
   const { t, isRTL } = useLanguage();
   const [isClient, setIsClient] = useState(false);
