@@ -1,0 +1,548 @@
+.location {
+  padding: 4rem 0;
+  background-color: #f8f9fa;
+
+  &.rtl {
+    direction: rtl;
+  }
+
+  .location-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .location-header {
+    text-align: center;
+    margin-bottom: 3rem;
+
+    .location-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 1rem;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .location-subtitle {
+      font-size: 1.1rem;
+      color: #666;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+  }
+
+  // Loading state
+  .location__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 0;
+    color: #666;
+
+    .location__spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e9ecef;
+      border-top: 3px solid #f1592f;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      font-size: 1rem;
+      margin: 0;
+    }
+  }
+
+  // Two column layout
+  .location-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+
+    @media (max-width: 968px) {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  // Column headers
+  .column-header {
+    margin-bottom: 1.5rem;
+
+    h3 {
+      font-size: 1.8rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      position: relative;
+      padding-bottom: 0.5rem;
+
+      &::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 50px;
+        height: 3px;
+        background-color: #f1592f;
+        border-radius: 2px;
+      }
+    }
+
+    .rtl & h3::after {
+      left: auto;
+      right: 0;
+    }
+  }
+
+  // Left column - Location/Map
+  .location-column {
+    background: #fff;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+
+    .map-container {
+      height: 400px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+      margin-bottom: 1.5rem;
+
+      @media (max-width: 768px) {
+        height: 300px;
+      }
+
+      .location-map {
+        z-index: 1;
+      }
+
+      .map-popup {
+        text-align: center;
+
+        h4 {
+          margin: 0 0 0.5rem 0;
+          color: #f1592f;
+          font-weight: 600;
+          font-size: 1rem;
+        }
+
+        p {
+          margin: 0 0 0.25rem 0;
+          color: #666;
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .map-actions {
+      display: flex;
+      gap: 0.4rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+
+      .map-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.6rem 0.8rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+
+        &.primary {
+          background-color: #f1592f;
+          color: #fff;
+
+          &:hover {
+            background-color: #e14a26;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(241, 89, 47, 0.3);
+          }
+        }
+
+                &.secondary {
+          background-color: #6c757d;
+          color: #fff;
+
+          &:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+          }
+        }
+
+        svg {
+          flex-shrink: 0;
+        }
+
+        @media (max-width: 480px) {
+          padding: 0.6rem 0.8rem;
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    .location-details {
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e9ecef;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        strong {
+          color: #333;
+          font-weight: 600;
+          min-width: 100px;
+        }
+
+        span {
+          color: #666;
+          text-align: right;
+
+          .rtl & {
+            text-align: left;
+          }
+        }
+
+        .coordinates-value {
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          color: #f1592f;
+          transition: color 0.2s ease;
+
+          &:hover {
+            color: #e14a26;
+          }
+
+          svg {
+            opacity: 0.7;
+          }
+        }
+      }
+    }
+  }
+
+  // Right column - Contact
+  .contact-column {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    height: fit-content;
+
+    .contact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .contact-icon {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        background-color: #f1592f;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        margin-top: 0.25rem;
+      }
+
+      .contact-details {
+        flex: 1;
+
+        h4 {
+          font-size: 1.1rem;
+          font-weight: 600;
+          color: #333;
+          margin: 0 0 0.5rem 0;
+        }
+
+        p {
+          margin: 0 0 0.25rem 0;
+          color: #666;
+          line-height: 1.5;
+
+          a {
+            color: #f1592f;
+            text-decoration: none;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: #e14a26;
+              text-decoration: underline;
+            }
+          }
+        }
+
+        .hours-list {
+          .hours-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.25rem 0;
+            font-size: 0.9rem;
+
+            span:first-child {
+              color: #333;
+              font-weight: 500;
+            }
+
+            span:last-child {
+              color: #666;
+            }
+          }
+        }
+
+        .social-links {
+          display: flex;
+          gap: 1rem;
+          margin-top: 0.5rem;
+
+          .social-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+
+            &.instagram {
+              background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+              color: #fff;
+
+              &:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(240, 148, 51, 0.4);
+              }
+            }
+
+            &.whatsapp {
+              background-color: #25d366;
+              color: #fff;
+
+              &:hover {
+                background-color: #128c7e;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+              }
+            }
+
+            svg {
+              flex-shrink: 0;
+            }
+
+            @media (max-width: 480px) {
+              span {
+                display: none;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // RTL specific styles
+  &.rtl {
+    .location-content {
+      direction: rtl;
+    }
+
+    .contact-item {
+      .contact-details {
+        .social-links {
+          flex-direction: row-reverse;
+        }
+
+        .hours-list {
+          .hours-item {
+            flex-direction: row-reverse;
+          }
+        }
+      }
+    }
+
+    .location-details {
+      .detail-item {
+        // flex-direction: row-reverse;
+
+        span {
+          text-align: left;
+        }
+      }
+    }
+
+    .map-actions {
+      flex-direction: row-reverse;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 968px) {
+    .location-content {
+      .location-column,
+      .contact-column {
+        padding: 1.5rem;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 2rem 0;
+
+    .location-container {
+      padding: 0 0.5rem;
+    }
+
+    .location-header {
+      margin-bottom: 2rem;
+    }
+
+    .location-content {
+      gap: 1rem;
+    }
+
+    .column-header {
+      margin-bottom: 1rem;
+
+      h3 {
+        font-size: 1.2rem;
+      }
+    }
+
+    .location-column,
+    .contact-column {
+      padding: 1.5rem;
+    }
+
+    .contact-info {
+      gap: 1rem;
+    }
+
+    .contact-item {
+      .contact-icon {
+        width: 40px;
+        height: 40px;
+      }
+
+      .contact-details {
+        h4 {
+          font-size: 1rem;
+        }
+
+        p {
+          font-size: 0.8rem;
+        }
+      }
+    }
+
+    .map-actions {
+      gap: 0.5rem;
+
+      .map-btn {
+        flex: 1;
+        justify-content: center;
+        min-width: 0;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .location-column,
+    .contact-column {
+      padding: 1rem;
+    }
+
+    .contact-item {
+      gap: 0.75rem;
+
+      .contact-details {
+        .social-links {
+          .social-link {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .map-actions {
+      display: block !important;
+      .map-btn {
+        width: 100%;
+        margin: 0.2rem;
+        span {
+          display: none;
+        }
+      }
+    }
+  }
+}
+
+// Leaflet map custom styles
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+}
+
+.leaflet-popup-tip {
+  background: #fff;
+}
+
+.leaflet-control-zoom {
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.leaflet-control-zoom a {
+  border-radius: 6px;
+  border: none;
+  color: #333;
+  
+  &:hover {
+    background-color: #f1592f;
+    color: #fff;
+  }
+}
+
+// Spin animation for loading
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

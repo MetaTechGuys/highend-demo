@@ -1,0 +1,107 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#__next {
+  height: 100%;
+}
+
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  padding-top: 70px; /* Account for fixed navbar */
+  
+  @media (max-width: 480px) {
+    padding-top: 60px; /* Smaller navbar height on mobile */
+  }
+}
+
+/* Ensure footer sticks to bottom */
+.main-content {
+  display: flex;
+  flex-direction: column;
+}
+
+html[dir="rtl"] {
+  direction: rtl;
+}
+
+html[dir="ltr"] {
+  direction: ltr;
+}
+
+/* RTL body font */
+html[dir="rtl"] body {
+  font-family: 'Vazir', 'Tahoma', sans-serif;
+}
+
+html[dir="ltr"] body {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* Smooth transitions for direction changes */
+* {
+  transition: margin 0.3s ease, padding 0.3s ease;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 70px;
+  
+  @media (max-width: 480px) {
+    scroll-padding-top: 60px;
+  }
+}
+
+/* Remove default margins and paddings */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles for accessibility */
+*:focus {
+  outline: 2px solid #007bff;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .navbar,
+  .footer {
+    display: none !important;
+  }
+  
+  .main-content {
+    padding-top: 0 !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  html {
+    scroll-behavior: auto;
+  }
+}
