@@ -50,12 +50,12 @@ interface MenuItem {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { categoryId: string } }
+  { params }: { params: Promise<{ categoryId: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'en';
-    const categoryId = params.categoryId;
+    const categoryId = (await params).categoryId;
 
     // Validate categoryId
     const categoryIdNum = parseInt(categoryId);
