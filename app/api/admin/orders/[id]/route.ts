@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -34,7 +34,7 @@ export async function PUT(
     const { status } = await request.json();
     
     // Here you would update the order status in your database
-    console.log('Updating order status:', params.id, status);
+    console.log('Updating order status:', (await params).id, status);
 
     return NextResponse.json({
       success: true,
