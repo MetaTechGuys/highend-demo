@@ -109,14 +109,14 @@ const Navbar: React.FC = () => {
 
           {/* Action Buttons */}
           <Link href="/login" className="btn btn-outline">
-            {t('login')}
+            {t('login1')}
           </Link>
           
           {/* Cart Button (replaces Gift Cards) */}
           <button onClick={openCart} className="btn btn-primary cart-btn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className="cart-icon">
-              <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
-            </svg>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="cart-icon">
+                <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
             <span>{t('cart') || 'Cart'}</span>
             {totalItems > 0 && (
               <span className="cart-count">{totalItems}</span>
@@ -190,11 +190,11 @@ const Navbar: React.FC = () => {
           
           <div className="mobile-actions">
             <Link href="/login" className="btn btn-outline" onClick={closeMobileMenu}>
-              {t('login')}
+              {t('login1')}
             </Link>
             <button onClick={() => { openCart(); closeMobileMenu(); }} className="btn btn-primary cart-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="cart-icon">
-                <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+                <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
               <span>{t('cart') || 'Cart'}</span>
               {totalItems > 0 && (

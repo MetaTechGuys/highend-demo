@@ -39,7 +39,7 @@
 }
 
 .progress-bar {
-  padding: 20px 30px;
+  padding: 10px 30px;
   background: #fff;
   border-bottom: 1px solid #e9ecef;
   position: relative;
@@ -604,4 +604,24 @@
       font-size: 14px;
     }
   }
+}
+.error-banner {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #f5c6cb;
+
+  .error-icon {
+    font-size: 1.2rem;
+  }
+}
+
+// RTL Support for error banner
+.rtl .error-banner {
+  flex-direction: row-reverse;
 }

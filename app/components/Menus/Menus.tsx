@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/app/contexts';
 import MenuDetail from '../MenuDetail/MenuDetail';
 import './Menus.scss';
+import { supabase } from '@/lib/supabase';
 
 interface MenuItem {
   id: number;
@@ -14,59 +15,87 @@ interface MenuItem {
 }
 
 const Menus: React.FC = () => {
-  const { isRTL, t } = useLanguage();
+  const { language, isRTL, t } = useLanguage();
   const [selectedMenu, setSelectedMenu] = useState<MenuItem | null>(null);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const menuItems: MenuItem[] = [
-    {
-      id: 1,
-      title: t('appetizers') || 'Appetizers',
-      image: '/images/french-fries.webp',
-      headerImage: '/images/menu/headers/Chips.webp'
-    },
-    {
-      id: 2,
-      title: t('mainCourses') || 'Main Courses',
-      image: '/images/food.webp',
-      headerImage: '/images/menu/headers/Burgers.webp'
-    },
-    {
-      id: 3,
-      title: t('desserts') || 'Desserts',
-      image: '/images/spaghetti.webp',
-      headerImage: '/images/menu/headers/Pasta.webp'
-    },
-    {
-      id: 4,
-      title: t('beverages') || 'Beverages',
-      image: '/images/soda.webp',
-      headerImage: '/images/menu/headers/Drinks.webp'
-    },
-    {
-      id: 5,
-      title: t('salads') || 'Salads',
-      image: '/images/salads.webp',
-      headerImage: '/images/menu/headers/Salad.webp'
-    },
-    {
-      id: 6,
-      title: t('soups') || 'Soups',
-      image: '/images/fried-chicken.webp',
-      headerImage: '/images/menu/headers/Friedchicken.webp'
-    },
-    {
-      id: 7,
-      title: t('seafood') || 'Seafood',
-      image: '/images/pizzas.webp',
-      headerImage: '/images/menu/headers/Pizza.webp'
-    },
-    {
-      id: 8,
-      title: t('specialties') || 'Chef Specialties',
-      image: '/images/sandwiches.webp',
-      headerImage: '/images/menu/headers/Sandwich.webp'
+  useEffect(() => {
+    fetchMenuCategories();
+
+    // Subscribe to real-time changes
+    const subscription = supabase
+      .channel('menu_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'menu_categories'
+        },
+        (payload) => {
+          console.log('Menu categories changed:', payload);
+          fetchMenuCategories(); // Refetch when data changes
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'menu_items'
+        },
+        (payload) => {
+          console.log('Menu items changed:', payload);
+          fetchMenuCategories(); // Refetch when data changes
+        }
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [language]);
+
+  const fetchMenuCategories = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/menu/categories?lang=${language}&t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch categories');
+      }
+
+      // Transform categories to match the expected format
+      const transformedItems = result.data.map((category: any) => ({
+        id: category.id,
+        title: typeof category.title === 'object' ? 
+          category.title[language] || category.title['en'] : 
+          category.title,
+        image: category.image,
+        headerImage: category.header_image,
+      }));
+
+      setMenuItems(transformedItems);
+    } catch (error) {
+      console.error('Error fetching menu categories:', error);
+      setError('Failed to load menu categories');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const handleMenuItemClick = (item: MenuItem) => {
     setSelectedMenu(item);
@@ -75,6 +104,34 @@ const Menus: React.FC = () => {
   const handleBackToMenu = () => {
     setSelectedMenu(null);
   };
+
+  if (loading) {
+    return (
+      <section className={`menus ${isRTL ? 'rtl' : 'ltr'}`}>
+        <div className="menus-loading">
+          <div className="loading-spinner">
+            <div className="spinner"></div>
+            <p>{t("loading")}</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={`menus ${isRTL ? 'rtl' : 'ltr'}`}>
+        <div className="menus-error">
+          <div className="error-message">
+            <p>{error}</p>
+            <button onClick={fetchMenuCategories} className="retry-button">
+              {t("retry") || "Retry"}
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (selectedMenu) {
     return (

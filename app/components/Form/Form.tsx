@@ -25,7 +25,6 @@ interface FormData {
   
   // Preferences
   favoriteItems: string[];
-  dietaryRestrictions: string[];
   preferredTime: string;
   
   // Feedback
@@ -45,7 +44,9 @@ interface FormProps {
 }
 
 const Form: React.FC<FormProps> = ({ onSubmit }) => {
-  const { t, isRTL } = useLanguage();
+  const { t, isRTL, language } = useLanguage();
+  
+  const [submitError, setSubmitError] = useState<string>('');
   
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
@@ -62,7 +63,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     atmosphere: 0,
     valueForMoney: 0,
     favoriteItems: [],
-    dietaryRestrictions: [],
     preferredTime: '',
     mostLiked: '',
     improvements: '',
@@ -104,67 +104,117 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
   };
 
   const validateStep = (step: number): boolean => {
-    const newErrors: Partial<Record<keyof FormData, string>> = {};
+  const newErrors: Partial<Record<keyof FormData, string>> = {};
 
-    switch (step) {
-      case 1:
-        if (!formData.name.trim()) newErrors.name = t('nameRequired') || 'Name is required';
-        if (!formData.email.trim()) {
-          newErrors.email = t('emailRequired') || 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-          newErrors.email = t('emailInvalid') || 'Email is invalid';
-        }
-        break;
-      case 2:
-        if (!formData.visitFrequency) newErrors.visitFrequency = t('visitFrequencyRequired') || 'Visit frequency is required';
-        break;
-      case 3:
-        if (formData.foodQuality === 0) newErrors.foodQuality = t('ratingRequired') || 'Rating is required';
-        if (formData.serviceQuality === 0) newErrors.serviceQuality = t('ratingRequired') || 'Rating is required';
-        break;
-      case 4:
-        if (!formData.mostLiked.trim()) newErrors.mostLiked = t('feedbackRequired') || 'This field is required';
-        if (formData.recommendation === 0) newErrors.recommendation = t('recommendationRequired') || 'Recommendation rating is required';
-        break;
-    }
+  switch (step) {
+    case 1:
+      if (!formData.name.trim()) newErrors.name = t('nameRequired') || 'Name is required';
+      if (!formData.email.trim()) {
+        newErrors.email = t('emailRequired') || 'Email is required';
+      } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+        newErrors.email = t('emailInvalid') || 'Email is invalid';
+      }
+      break;
+    case 2:
+      if (!formData.visitFrequency) newErrors.visitFrequency = t('visitFrequencyRequired') || 'Visit frequency is required';
+      break;
+    case 3:
+      if (formData.foodQuality === 0) newErrors.foodQuality = t('ratingRequired') || 'Rating is required';
+      if (formData.serviceQuality === 0) newErrors.serviceQuality = t('ratingRequired') || 'Rating is required';
+      break;
+    case 4:
+      if (!formData.mostLiked.trim()) newErrors.mostLiked = t('feedbackRequired') || 'This field is required';
+      if (formData.recommendation === 0) newErrors.recommendation = t('recommendationRequired') || 'Recommendation rating is required';
+      break;
+    case 5:
+      // Add validation for step 5 (preferences) if needed
+      // For example, if you want to require hearing about us:
+      // if (!formData.hearAboutUs) newErrors.hearAboutUs = t('hearAboutUsRequired') || 'Please tell us how you heard about us';
+      break;
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const nextStep = () => {
-    if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
-    }
-  };
+  if (validateStep(currentStep) && currentStep < totalSteps) {
+    setCurrentStep(prev => prev + 1);
+  }
+};
 
   const prevStep = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateStep(currentStep)) return;
-    
-    setIsSubmitting(true);
-    
-    try {
-      // Call the onSubmit prop if provided
-      if (onSubmit) {
-        await onSubmit(formData);
-      }
-      
-      // Set submitted state to show success message
-      setIsSubmitted(true);
-      
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      // Handle error silently or show inline error message
-    } finally {
-      setIsSubmitting(false);
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  
+  // Only submit if we're on the last step AND it's an explicit submit
+  if (currentStep !== totalSteps) {
+    console.log('Not on last step, preventing submission');
+    return false;
+  }
+  
+  if (!validateStep(currentStep)) return false;
+  
+  setIsSubmitting(true);
+  setSubmitError('');
+  
+  try {
+    // Prepare data for API submission
+    const submissionData = {
+      ...formData,
+      language: language
+    };
+
+    // Submit to API
+    const response = await fetch('/api/survey', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submissionData),
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to submit survey');
     }
-  };
+
+    // Call the onSubmit prop if provided (for additional handling)
+    if (onSubmit) {
+      await onSubmit(formData);
+    }
+    
+    // Set submitted state to show success message
+    setIsSubmitted(true);
+    
+  } catch (error) {
+    console.error('Error submitting survey:', error);
+    setSubmitError(
+      error instanceof Error 
+        ? error.message 
+        : t('submitError') || 'Failed to submit survey. Please try again.'
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+const handleExplicitSubmit = async () => {
+  if (currentStep === totalSteps) {
+    const fakeEvent = {
+      preventDefault: () => {},
+      stopPropagation: () => {}
+    } as React.FormEvent;
+    await handleSubmit(fakeEvent);
+  }
+};
+
 
   const resetForm = () => {
     setFormData({
@@ -181,7 +231,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
       atmosphere: 0,
       valueForMoney: 0,
       favoriteItems: [],
-      dietaryRestrictions: [],
       preferredTime: '',
       mostLiked: '',
       improvements: '',
@@ -194,6 +243,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     setCurrentStep(1);
     setIsSubmitted(false);
     setErrors({});
+    setSubmitError('');
   };
 
   const renderStarRating = (value: number, onChange: (rating: number) => void, error?: string) => (
@@ -496,32 +546,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
             </div>
 
             <div className="form-group">
-              <label>{t('dietaryRestrictions') || 'Dietary restrictions'}</label>
-              <div className="checkbox-group">
-                {[
-                  { value: 'vegetarian', label: t('vegetarian') || 'Vegetarian' },
-                  { value: 'vegan', label: t('vegan') || 'Vegan' },
-                  { value: 'gluten-free', label: t('glutenFree') || 'Gluten-free' },
-                  { value: 'dairy-free', label: t('dairyFree') || 'Dairy-free' },
-                  { value: 'nut-free', label: t('nutFree') || 'Nut-free' },
-                  { value: 'halal', label: t('halal') || 'Halal' },
-                  { value: 'kosher', label: t('kosher') || 'Kosher' },
-                  { value: 'none', label: t('none') || 'None' }
-                ].map(option => (
-                  <label key={option.value} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      value={option.value}
-                      checked={formData.dietaryRestrictions.includes(option.value)}
-                      onChange={(e) => handleArrayChange('dietaryRestrictions', option.value, e.target.checked)}
-                    />
-                    <span>{option.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-group">
               <label htmlFor="preferredTime">{t('preferredTime') || 'Preferred dining time'}</label>
               <select
                 id="preferredTime"
@@ -614,6 +638,15 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
         <form className="survey-form" onSubmit={handleSubmit}>
           {renderStep()}
 
+        {/* Error Message */}
+          {submitError && (
+            <div className="error-banner">
+              <span className="error-icon">⚠️</span>
+              <span>{submitError}</span>
+            </div>
+          )}
+
+
           {/* Form Actions */}
           <div className="form-actions">
             {currentStep > 1 && (
@@ -640,7 +673,8 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
               </button>
             ) : (
               <button
-                type="submit"
+                type="button"
+                onClick={handleExplicitSubmit}
                 className="btn btn-primary"
                 disabled={isSubmitting}
               >

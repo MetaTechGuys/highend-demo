@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/app/contexts/CartContext';
 import { useLanguage } from '@/app/contexts';
 import './Cart.scss';
@@ -17,13 +18,24 @@ const Cart: React.FC = () => {
     setIsCartOpen 
   } = useCart();
   const { isRTL, t } = useLanguage();
+  const router = useRouter();
 
   const handleQuantityChange = (id: number, categoryId: number, newQuantity: number) => {
     updateQuantity(id, categoryId, newQuantity);
   };
 
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(2)}`;
+    return `${price}T`;
+  };
+
+  const handleCheckout = () => {
+    if (cartItems.length === 0) return;
+    
+    // Close the cart
+    setIsCartOpen(false);
+    
+    // Navigate to checkout page
+    router.push('/checkout');
   };
 
   return (
@@ -37,7 +49,7 @@ const Cart: React.FC = () => {
       )}
 
       {/* Cart Sidebar */}
-      <div className={`cart-sidebar ${isCartOpen ? 'open' : ''} ${isRTL ? 'rtl' : 'ltr'}`}>
+      <div className={`cart-sidebar ${isRTL ? 'rtl' : ''} ${isCartOpen ? 'open' : ''}`}>
         <div className="cart-header">
           <h2 className="cart-title">{t('shoppingCart') || 'Shopping Cart'}</h2>
           <button 
@@ -54,8 +66,8 @@ const Cart: React.FC = () => {
         <div className="cart-content">
           {cartItems.length === 0 ? (
             <div className="cart-empty">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="currentColor" className="empty-cart-icon">
-                <path d="M7 4V2C7 1.45 7.45 1 8 1H16C16.55 1 17 1.45 17 2V4H20C20.55 4 21 4.45 21 5S20.55 6 20 6H19V19C19 20.1 18.1 21 17 21H7C5.9 21 5 20.1 5 19V6H4C3.45 6 3 5.55 3 5S3.45 4 4 4H7ZM9 3V4H15V3H9ZM7 6V19H17V6H7Z"/>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="cart-icon">
+                <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
               <p>{t('cartEmpty') || 'Your cart is empty'}</p>
             </div>
@@ -127,10 +139,18 @@ const Cart: React.FC = () => {
                   <button 
                     className="clear-cart-btn"
                     onClick={clearCart}
+                    disabled={cartItems.length === 0}
                   >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                    </svg>
                     {t('clearCart') || 'Clear Cart'}
                   </button>
-                  <button className="checkout-btn">
+                  <button 
+                    className={`checkout-btn ${cartItems.length === 0 ? 'disabled' : ''}`}
+                    onClick={handleCheckout}
+                    disabled={cartItems.length === 0}
+                  >
                     {t('checkout') || 'Checkout'}
                   </button>
                 </div>

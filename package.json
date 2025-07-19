@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/realtime-js": "^2.12.2",
+    "@supabase/supabase-js": "^2.52.0",
     "leaflet": "^1.9.4",
     "next": "15.4.1",
     "react": "19.1.0",
@@ -24,6 +26,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.1",
+    "tsx": "^4.20.3",
     "typescript": "^5"
   }
 }
