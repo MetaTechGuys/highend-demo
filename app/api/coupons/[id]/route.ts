@@ -53,7 +53,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify employee authentication
@@ -65,7 +65,7 @@ export async function DELETE(
       );
     }
 
-    const couponId = params.id;
+    const couponId = (await params).id;
 
     const { error } = await supabase
       .from('coupons')

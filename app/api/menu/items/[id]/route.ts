@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify employee authentication
@@ -21,7 +21,7 @@ export async function PUT(
     }
 
     const itemData = await request.json();
-    const itemId = params.id;
+    const itemId = (await params).id;
 
     const { data, error } = await supabase
       .from('menu_items')
@@ -53,7 +53,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify employee authentication
@@ -65,7 +65,7 @@ export async function DELETE(
       );
     }
 
-    const itemId = params.id;
+    const itemId = (await params).id;
 
     const { error } = await supabase
       .from('menu_items')
