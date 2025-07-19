@@ -8,7 +8,7 @@ const supabase = createClient(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Verify employee authentication
@@ -21,7 +21,7 @@ export async function PUT(
     }
 
     const couponData = await request.json();
-    const couponId = params.id;
+    const couponId = (await params).id;
 
     const { data, error } = await supabase
       .from('coupons')
