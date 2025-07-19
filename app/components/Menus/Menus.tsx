@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/app/contexts';
 import MenuDetail from '../MenuDetail/MenuDetail';
@@ -20,6 +20,50 @@ const Menus: React.FC = () => {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const fetchMenuCategories = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime();
+      const response = await fetch(`/api/menu/categories?lang=${language}&t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      });
+      
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to fetch categories');
+      }
+
+      // Transform categories to match the expected format
+      const transformedItems = result.data.map((category: {
+        id: number;
+        title: string | { [key: string]: string };
+        image: string;
+        header_image: string;
+      }) => ({
+        id: category.id,
+        title: typeof category.title === 'object' ? 
+          category.title[language] || category.title['en'] : 
+          category.title,
+        image: category.image,
+        headerImage: category.header_image,
+      }));
+
+      setMenuItems(transformedItems);
+    } catch (error) {
+      console.error('Error fetching menu categories:', error);
+      setError('Failed to load menu categories');
+    } finally {
+      setLoading(false);
+    }
+  }, [language]);
 
   useEffect(() => {
     fetchMenuCategories();
@@ -56,46 +100,7 @@ const Menus: React.FC = () => {
     return () => {
       subscription.unsubscribe();
     };
-  }, [language]);
-
-  const fetchMenuCategories = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // Add timestamp to prevent caching
-      const timestamp = new Date().getTime();
-      const response = await fetch(`/api/menu/categories?lang=${language}&t=${timestamp}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache',
-        },
-      });
-      
-      const result = await response.json();
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch categories');
-      }
-
-      // Transform categories to match the expected format
-      const transformedItems = result.data.map((category: any) => ({
-        id: category.id,
-        title: typeof category.title === 'object' ? 
-          category.title[language] || category.title['en'] : 
-          category.title,
-        image: category.image,
-        headerImage: category.header_image,
-      }));
-
-      setMenuItems(transformedItems);
-    } catch (error) {
-      console.error('Error fetching menu categories:', error);
-      setError('Failed to load menu categories');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [language, fetchMenuCategories]);
 
   const handleMenuItemClick = (item: MenuItem) => {
     setSelectedMenu(item);

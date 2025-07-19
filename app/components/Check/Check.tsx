@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import Image from 'next/image';
 import { useCart } from '@/app/contexts/CartContext';
 import { useLanguage } from '@/app/contexts';
@@ -87,7 +87,7 @@ const Check: React.FC = () => {
         setDiscountError(result.error);
         setDiscountInfo(null);
       }
-    } catch (error) {
+    } catch {
       setDiscountError(t('errorValidatingCoupon') || 'Error validating coupon');
       setDiscountInfo(null);
     } finally {

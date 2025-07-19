@@ -2,12 +2,11 @@ import { supabase } from './supabase';
 import type { MenuCategory, MenuItem, MenuDetailItem } from '@/types/database';
 
 export class MenuService {
-  static getCategoryWithItems: any;
-  getCategoryWithItems(categoryId: number, arg1: string) {
+  getCategoryWithItems() {
       throw new Error('Method not implemented.');
   }
   // Get all menu categories
-  static async getCategories(language: string = 'en'): Promise<MenuCategory[]> {
+  static async getCategories(): Promise<MenuCategory[]> {
     try {
       const { data, error } = await supabase
         .from('menu_categories')
@@ -84,7 +83,7 @@ export class MenuService {
       item.description[language] || item.description['en'] : 
       item.description;
 
-    let result: MenuDetailItem = {
+    const result: MenuDetailItem = {
       id: item.id,
       name,
       image: item.image,

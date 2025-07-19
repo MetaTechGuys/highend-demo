@@ -1,5 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_ANON_KEY!
+);
+
+interface MenuCategory {
+  id: number;
+  title: {
+    en: string;
+    fa: string;
+  };
+  image: string;
+  header_image: string;
+  display_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface MenuItem {
+  id: number;
+  category_id: number;
+  name: {
+    en: string;
+    fa: string;
+  };
+  description?: {
+    en: string;
+    fa: string;
+  };
+  image: string;
+  price?: number;
+  price_small?: number;
+  price_large?: number;
+  original_price?: number;
+  original_price_small?: number;
+  original_price_large?: number;
+  is_discounted: boolean;
+  is_discounted_small: boolean;
+  is_discounted_large: boolean;
+  is_available: boolean;
+  has_sizes: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export async function GET(
   request: NextRequest,
@@ -8,122 +55,81 @@ export async function GET(
   try {
     const { searchParams } = new URL(request.url);
     const lang = searchParams.get('lang') || 'en';
-    const categoryId = parseInt(params.categoryId);
+    const categoryId = params.categoryId;
 
-    console.log('Fetching menu items for category:', categoryId, 'language:', lang);
-
-    if (isNaN(categoryId)) {
+    // Validate categoryId
+    const categoryIdNum = parseInt(categoryId);
+    if (isNaN(categoryIdNum)) {
       return NextResponse.json(
         { success: false, error: 'Invalid category ID' },
         { status: 400 }
       );
     }
 
-    const supabase = createServerSupabaseClient();
-
-    // First, get the category info
+    // First, get the category to ensure it exists
     const { data: category, error: categoryError } = await supabase
       .from('menu_categories')
       .select('*')
-      .eq('id', categoryId)
+      .eq('id', categoryIdNum)
       .eq('is_active', true)
       .single();
 
-    if (categoryError) {
-      console.error('Category error:', categoryError);
+    if (categoryError || !category) {
       return NextResponse.json(
         { success: false, error: 'Category not found' },
         { status: 404 }
       );
     }
 
-    // Then get the menu items for this category
+    // Get menu items for this category
     const { data: items, error: itemsError } = await supabase
       .from('menu_items')
       .select('*')
-      .eq('category_id', categoryId)
-      .eq('is_available', true)
-      .order('order', { ascending: true });
+      .eq('category_id', categoryIdNum)
+      .order('display_order', { ascending: true });
 
     if (itemsError) {
-      console.error('Items error:', itemsError);
       throw itemsError;
     }
 
-    console.log('Raw items from database:', items);
-
-    // Transform the items to match the expected format
-    const transformedItems = items?.map(item => {
-      const transformedItem: any = {
-        id: item.id,
-        name: typeof item.name === 'object' ? item.name[lang] || item.name['en'] : item.name,
-        description: typeof item.description === 'object' ? item.description[lang] || item.description['en'] : item.description,
-        image: item.image,
-        isAvailable: item.is_available,
-        isDiscounted: item.is_discounted,
-      };
-
-      // Handle pricing based on whether item has sizes
-      if (item.has_sizes && typeof item.price === 'object') {
-        transformedItem.priceSmall = item.price.small;
-        transformedItem.priceLarge = item.price.large;
-        transformedItem.price = item.price.small; // Default to small price
-        
-        if (item.original_price && typeof item.original_price === 'object') {
-          transformedItem.originalPriceSmall = item.original_price.small;
-          transformedItem.originalPriceLarge = item.original_price.large;
-          transformedItem.originalPrice = item.original_price.small;
-        }
-        
-        transformedItem.isDiscountedSmall = item.is_discounted_small;
-        transformedItem.isDiscountedLarge = item.is_discounted_large;
-      } else {
-        // Single price item
-        transformedItem.price = typeof item.price === 'object' ? item.price.single || item.price : item.price;
-        transformedItem.originalPrice = typeof item.original_price === 'object' ? item.original_price.single || item.original_price : item.original_price;
-      }
-
-      return transformedItem;
-    }) || [];
-
-    console.log('Transformed items:', transformedItems);
-
-    const result = {
-      category: {
-        id: category.id,
-        title: typeof category.title === 'object' ? category.title[lang] || category.title['en'] : category.title,
-        image: category.image,
-        header_image: category.header_image,
-      },
-      items: transformedItems,
-    };
+    // Transform the data to match the expected format
+    const transformedCategory: MenuCategory = category as MenuCategory;
+    const transformedItems: MenuItem[] = (items || []) as MenuItem[];
 
     return NextResponse.json({
       success: true,
-      data: result,
-    }, {
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      },
-    });
-  } catch (error) {
-    console.error('Error fetching menu items:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to fetch menu items',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      },
-      { 
-        status: 500,
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0',
+      data: {
+        category: {
+          id: transformedCategory.id,
+          title: transformedCategory.title[lang as keyof typeof transformedCategory.title] || transformedCategory.title.en,
+          image: transformedCategory.image,
+          headerImage: transformedCategory.header_image,
         },
+        items: transformedItems.map((item) => ({
+          id: item.id,
+          name: item.name[lang as keyof typeof item.name] || item.name.en,
+          description: item.description?.[lang as keyof typeof item.description] || item.description?.en,
+          image: item.image,
+          price: item.price?.toString() || '0',
+          priceSmall: item.price_small?.toString(),
+          priceLarge: item.price_large?.toString(),
+          originalPrice: item.original_price?.toString(),
+          originalPriceSmall: item.original_price_small?.toString(),
+          originalPriceLarge: item.original_price_large?.toString(),
+          isDiscounted: item.is_discounted,
+          isDiscountedSmall: item.is_discounted_small,
+          isDiscountedLarge: item.is_discounted_large,
+          isAvailable: item.is_available,
+          hasSizes: item.has_sizes,
+        }))
       }
+    });
+
+  } catch (error) {
+    console.error('Error fetching menu data:', error);
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch menu data' },
+      { status: 500 }
     );
   }
 }

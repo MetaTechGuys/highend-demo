@@ -94,15 +94,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     }
   };
 
-  const handleArrayChange = (field: keyof FormData, value: string, checked: boolean) => {
-    const currentArray = formData[field] as string[];
-    if (checked) {
-      handleInputChange(field, [...currentArray, value]);
-    } else {
-      handleInputChange(field, currentArray.filter(item => item !== value));
-    }
-  };
-
   const validateStep = (step: number): boolean => {
   const newErrors: Partial<Record<keyof FormData, string>> = {};
 

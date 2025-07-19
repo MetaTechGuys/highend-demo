@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         employee
       });
 
-    } catch (decodeError) {
+    } catch {
       // If it's not a simple token, it might be a Supabase JWT
       return NextResponse.json(
         { success: false, error: 'Invalid token format' },

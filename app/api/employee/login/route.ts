@@ -47,7 +47,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Remove password from response
-    const { password_hash, ...employeeData } = employee;
+    const employeeData = {
+  id: employee.id,
+  email: employee.email,
+  name: employee.name,
+  role: employee.role,
+  is_active: employee.is_active
+};
 
     // Generate session token
     const sessionToken = Buffer.from(
