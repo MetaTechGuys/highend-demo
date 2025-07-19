@@ -8,7 +8,7 @@ const supabaseAdmin = createClient(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '');
@@ -35,7 +35,7 @@ export async function PUT(
     
     // Here you would update the menu item in your database
     // For now, just return success
-    console.log('Updating menu item:', params.id, menuItemData);
+    console.log('Updating menu item:', (await params).id, menuItemData);
 
     return NextResponse.json({
       success: true,
