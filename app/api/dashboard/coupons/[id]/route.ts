@@ -3,7 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const couponData = await request.json();
