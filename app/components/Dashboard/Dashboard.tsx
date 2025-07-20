@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '@/app/contexts';
 import { supabase } from '@/lib/supabase';
@@ -24,8 +25,8 @@ interface OrderItem {
   // Enriched data from menu_items table
   menuItem?: {
     id: number;
-    name: any; // JSONB field
-    description: any; // JSONB field
+    name: string | Record<string, string>; // JSONB field
+    description: string | Record<string, string>; // JSONB field
     image: string;
     category_name?: string;
     is_available: boolean;
@@ -85,11 +86,11 @@ interface MenuItem {
   id: number;
   category_id: number;
   key: string;
-  name: any; // JSONB field
-  description: any; // JSONB field
+  name: string | Record<string, string>; // JSONB field
+  description: string | Record<string, string>; // JSONB field
   image: string;
-  price: any; // JSONB field
-  original_price?: any; // JSONB field
+  price: number | Record<string, number>; // JSONB field
+  original_price?: number | Record<string, number>; // JSONB field
   is_available: boolean;
   is_discounted: boolean;
   has_sizes: boolean;
@@ -100,7 +101,7 @@ interface MenuItem {
   updated_at: string;
   menu_categories?: {
     id: number;
-    title: any;
+    title: string | Record<string, string>; // JSONB field
     key: string;
   };
 }
@@ -109,7 +110,7 @@ interface MenuItem {
 interface MenuCategory {
   id: number;
   key: string;
-  title: any; // JSONB field
+  title: string | Record<string, string>; // JSONB field
   image: string;
   header_image: string;
   order: number;
@@ -182,24 +183,26 @@ const fetchOrders = async () => {
       console.log('Processing order:', order.order_number, 'Items:', order.items); // Debug log
       
       if (order.items) {
-        let items = order.items;
+        let items: OrderItem[] = order.items;
         
         // Handle different JSONB structures
         if (typeof items === 'string') {
           try {
-            items = JSON.parse(items);
-          } catch (e) {
+            items = JSON.parse(items) as OrderItem[];
+          } catch {
             console.warn('Failed to parse items JSON for order:', order.order_number);
             return;
           }
         }
         
         if (Array.isArray(items)) {
-          items.forEach((item: any) => {
+          items.forEach((item: OrderItem) => {
             // Try different possible ID field names
-            const itemId = item.id || item.menuItemId || item.menu_item_id || item.itemId;
-            if (itemId && !isNaN(parseInt(itemId))) {
-              allMenuItemIds.add(parseInt(itemId));
+            const itemId = item.id || (item as unknown as Record<string, unknown>).menuItemId || 
+                          (item as unknown as Record<string, unknown>).menu_item_id || 
+                          (item as unknown as Record<string, unknown>).itemId;
+            if (itemId && !isNaN(parseInt(String(itemId)))) {
+              allMenuItemIds.add(parseInt(String(itemId)));
             }
           });
         }
@@ -209,48 +212,65 @@ const fetchOrders = async () => {
     console.log('Found menu item IDs:', Array.from(allMenuItemIds)); // Debug log
 
     // Fetch menu items data for all the IDs we found
-    let menuItemsData: any[] = [];
+    let menuItemsData: MenuItem[] = [];
     if (allMenuItemIds.size > 0) {
       const { data, error: menuItemsError } = await supabase
         .from('menu_items')
         .select(`
-          id,
-          name,
-          description,
-          image,
-          is_available,
-          menu_categories!inner(id, title)
-        `)
+  id,
+  category_id,
+  key,
+  name,
+  description,
+  image,
+  price,
+  original_price,
+  is_available,
+  is_discounted,
+  has_sizes,
+  is_discounted_small,
+  is_discounted_large,
+  order,
+  created_at,
+  updated_at,
+  menu_categories (
+    id,
+    title,
+    key
+  )
+`)
+
         .in('id', Array.from(allMenuItemIds));
 
       if (menuItemsError) {
         console.warn('Error fetching menu items:', menuItemsError);
       } else {
-        menuItemsData = data || [];
+        menuItemsData = (data || []) as unknown as MenuItem[];
       }
     }
 
     console.log('Fetched menu items:', menuItemsData); // Debug log
 
     // Create a map of menu items for quick lookup
-    const menuItemsMap = new Map();
+    const menuItemsMap = new Map<number, MenuItem & { category_name: string }>();
     menuItemsData?.forEach(item => {
-      menuItemsMap.set(item.id, {
-        ...item,
-        category_name: item.menu_categories?.title || 'Unknown Category'
-      });
+      if (item.id) {
+        menuItemsMap.set(item.id, {
+          ...item,
+          category_name: typeof item.menu_categories === 'object' && item.menu_categories ? item.menu_categories.title?.toString() || 'Unknown Category' : 'Unknown Category'
+        });
+      }
     });
     
-
     // Enrich orders with menu item data
     const enrichedOrders = ordersData?.map(order => {
-      let items = order.items;
+      let items: OrderItem[] = order.items;
       
       // Handle different JSONB structures
       if (typeof items === 'string') {
         try {
-          items = JSON.parse(items);
-        } catch (e) {
+          items = JSON.parse(items) as OrderItem[];
+        } catch {
           items = [];
         }
       }
@@ -259,9 +279,11 @@ const fetchOrders = async () => {
         items = [];
       }
 
-      const enrichedItems = items.map((item: any) => {
-        const itemId = item.id || item.menuItemId || item.menu_item_id || item.itemId;
-        const menuItem = itemId ? menuItemsMap.get(parseInt(itemId)) : null;
+      const enrichedItems = items.map((item: OrderItem) => {
+        const itemId = item.id || (item as unknown as Record<string, unknown>).menuItemId || 
+                      (item as unknown as Record<string, unknown>).menu_item_id || 
+                      (item as unknown as Record<string, unknown>).itemId;
+        const menuItem = itemId ? menuItemsMap.get(parseInt(String(itemId))) : null;
         
         return {
           ...item,
@@ -284,6 +306,7 @@ const fetchOrders = async () => {
     setLoading(false);
   }
 };
+
 
 
 const fetchSurveys = async () => {
@@ -371,7 +394,7 @@ const updateOrderStatus = async (orderId: number, status: string) => {
   }
 };
 
-const updateMenuItem = async (itemData: any) => {
+const updateMenuItem = async (itemData: MenuItem) => {
   try {
     setLoading(true);
     
@@ -583,13 +606,20 @@ const renderOrdersTab = () => (
                     {Array.isArray(order.items) && order.items.slice(0, 2).map((item, index) => (
                       <div key={index} className="item-preview">
                         <div className="item-preview-content">
-                          {item.menuItem?.image && (
-                            <img 
+                          {item.menuItem?.image ? (
+                          <Image 
                               src={item.menuItem.image} 
                               alt={item.name}
+                              width={40}
+                              height={40}
                               className="item-preview-image"
+                              sizes="40px"
                             />
-                          )}
+                        ) : (
+                          <div className="item-image-placeholder">
+                            <span>🍽️</span>
+                          </div>
+                        )}
                           <div className="item-preview-text">
                             <small className="item-name">
                               {item.menuItem?.name ? 
@@ -721,11 +751,14 @@ const renderOrdersTab = () => (
                     <div key={index} className="order-item enhanced">
                       <div className="item-image-container">
                         {item.menuItem?.image ? (
-                          <img 
-                            src={item.menuItem.image} 
-                            alt={item.name}
-                            className="item-image"
-                          />
+                          <Image 
+                              src={item.menuItem.image} 
+                              alt={item.name}
+                              width={40}
+                              height={40}
+                              className="item-preview-image"
+                              sizes="40px"
+                            />
                         ) : (
                           <div className="item-image-placeholder">
                             <span>🍽️</span>
@@ -1098,28 +1131,55 @@ const renderSurveysTab = () => (
   // Render Menu Tab
 const renderMenuTab = () => {
   // Helper function to get text from JSONB field
-  const getLocalizedText = (jsonbField: any, fallback: string = '') => {
-    if (!jsonbField) return fallback;
-    if (typeof jsonbField === 'string') return jsonbField;
-    
-    // Use current language from context
-    if (typeof jsonbField === 'object') {
-      return jsonbField[language] || 
-             jsonbField['en'] || 
-             jsonbField['fa'] || 
-             Object.values(jsonbField)[0] || 
-             fallback;
-    }
-    
-    return fallback;
-  };
+  const getLocalizedText = (
+  jsonbField: string | Record<string, string> | null | undefined, 
+  fallback: string = ''
+): string => {
+  if (!jsonbField) return fallback;
+  if (typeof jsonbField === 'string') return jsonbField;
+  
+  // Use current language from context
+  if (typeof jsonbField === 'object' && jsonbField !== null) {
+    return jsonbField[language] || 
+           jsonbField['en'] || 
+           jsonbField['fa'] || 
+           Object.values(jsonbField)[0] || 
+           fallback;
+  }
+  
+  return fallback;
+};
 
   // Helper function to get price from JSONB field
-  const getPrice = (priceField: any) => {
-    if (!priceField) return 0;
-    if (typeof priceField === 'number') return priceField;
-    return priceField.default || priceField.small || Object.values(priceField)[0] || 0;
-  };
+interface PriceObject {
+  default?: number;
+  small?: number;
+  large?: number;
+  [key: string]: number | undefined;
+}
+
+type PriceField = number | string | PriceObject | null | undefined;
+
+const getPrice = (priceField: PriceField): number => {
+  if (!priceField) return 0;
+  if (typeof priceField === 'number') return priceField;
+  
+  if (typeof priceField === 'string') {
+    const parsed = parseFloat(priceField);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  
+  if (typeof priceField === 'object') {
+    // Try different keys in order of preference
+    return priceField.default || 
+           priceField.small || 
+           priceField.large ||
+           Object.values(priceField).find(val => typeof val === 'number' && val > 0) || 
+           0;
+  }
+  
+  return 0;
+};
 
   return (
     <div className="tab-content">
@@ -1168,7 +1228,14 @@ const renderMenuTab = () => {
             {menuItems.map((item) => (
               <tr key={item.id}>
                 <td>
-                  <img src={item.image} alt={getLocalizedText(item.name)} className="item-image" />
+                  <Image 
+  src={item.image} 
+  alt={getLocalizedText(item.name)} 
+  width={60} 
+  height={60} 
+  className="item-image"
+  sizes="60px"
+/>
                 </td>
                 <td>
                   <span className="category-badge">
@@ -1181,8 +1248,8 @@ const renderMenuTab = () => {
   <div className="price-info">
     {item.has_sizes ? (
       <>
-        <div>S: {getPrice(item.price?.small || item.price)}T</div>
-        <div>L: {getPrice(item.price?.large || item.price)}T</div>
+        <div>S: {getPrice(typeof item.price === 'object' ? item.price.small : item.price)}T</div>
+        <div>L: {getPrice(typeof item.price === 'object' ? item.price.large : item.price)}T</div>
       </>
     ) : (
       <div>{getPrice(item.price)}T</div>
@@ -1433,7 +1500,7 @@ const renderCouponsTab = () => (
 // Coupon Form Component
 interface CouponFormProps {
   coupon?: Coupon | null;
-  onSave: (coupon: any) => void;
+  onSave: (coupon: Coupon) => void;
   onCancel: () => void;
 }
 
@@ -1452,7 +1519,12 @@ const CouponForm: React.FC<CouponFormProps> = ({ coupon, onSave, onCancel }) => 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({
+      ...formData,
+      id: (coupon?.id || 0).toString(),
+      used_count: coupon?.used_count || 0,
+      created_at: coupon?.created_at || new Date().toISOString()
+    });
   };
 
   return (
@@ -1568,35 +1640,76 @@ const CouponForm: React.FC<CouponFormProps> = ({ coupon, onSave, onCancel }) => 
 // Add this interface for the enhanced form
 interface MenuItemFormProps {
   item: MenuItem;
-  onSave: (item: any) => void;
+  onSave: (item: MenuItem) => void;
   onCancel: () => void;
 }
 
 // Enhanced MenuItemForm component with multilingual support
 const MenuItemForm: React.FC<MenuItemFormProps> = ({ item, onSave, onCancel }) => {
-  const { t, language } = useLanguage();
+  const { t, } = useLanguage();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeLanguageTab, setActiveLanguageTab] = useState<'en' | 'fa'>('en');
 
   // Helper functions
-  const getLocalizedText = (jsonbField: any, lang: string, fallback: string = '') => {
+  const getLocalizedText = (
+    jsonbField: string | Record<string, string> | null | undefined, 
+    lang: string, 
+    fallback: string = ''
+  ): string => {
     if (!jsonbField) return fallback;
     if (typeof jsonbField === 'string') return jsonbField;
-    if (typeof jsonbField === 'object') {
+    if (typeof jsonbField === 'object' && jsonbField !== null) {
       return jsonbField[lang] || fallback;
     }
     return fallback;
   };
 
-  const getPrice = (priceField: any, key?: string) => {
-    if (!priceField) return 0;
-    if (typeof priceField === 'number') return priceField;
-    if (key && priceField[key]) return parseFloat(priceField[key]);
-    if (priceField.default) return parseFloat(priceField.default);
-    if (priceField.small && !key) return parseFloat(priceField.small);
-    const firstValue = Object.values(priceField)[0];
-    return firstValue ? parseFloat(firstValue as string) : 0;
-  };
+interface PriceObject {
+  default?: number | string;
+  small?: number | string;
+  large?: number | string;
+  [key: string]: number | string | undefined;
+}
+
+type PriceField = number | string | PriceObject | null | undefined;
+
+const getPrice = (priceField: PriceField, key?: string): number => {
+  if (!priceField) return 0;
+  
+  if (typeof priceField === 'number') return priceField;
+  
+  if (typeof priceField === 'string') {
+    const parsed = parseFloat(priceField);
+    return isNaN(parsed) ? 0 : parsed;
+  }
+  
+  if (typeof priceField === 'object') {
+    // If a specific key is requested
+    if (key && priceField[key] !== undefined) {
+      const value = priceField[key];
+      return parseFloat(String(value)) || 0;
+    }
+    
+    // Try default first
+    if (priceField.default !== undefined) {
+      return parseFloat(String(priceField.default)) || 0;
+    }
+    
+    // If no key specified, try small
+    if (priceField.small !== undefined && !key) {
+      return parseFloat(String(priceField.small)) || 0;
+    }
+    
+    // Fall back to first available value
+    const values = Object.values(priceField).filter(v => v !== undefined);
+    if (values.length > 0) {
+      const firstValue = values[0];
+      return parseFloat(String(firstValue)) || 0;
+    }
+  }
+  
+  return 0;
+};
 
   const [formData, setFormData] = useState({
     id: item.id,
@@ -1642,9 +1755,24 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ item, onSave, onCancel }) =
         // Ensure we have at least English name
         name_en: formData.name_en.trim() || 'Unnamed Item',
         description_en: formData.description_en.trim(),
+        name: {
+          en: formData.name_en.trim() || 'Unnamed Item',
+          fa: formData.name_fa.trim()
+        },
+        description: {
+          en: formData.description_en.trim(),
+          fa: formData.description_fa.trim()
+        },
+        price: {
+          default: formData.price_default,
+          small: formData.price_small,
+          large: formData.price_large
+        },
+        created_at: item.created_at,
+        updated_at: item.updated_at
       };
 
-      await onSave(submitData);
+      onSave(submitData);
     } catch (error) {
       console.error('Error saving menu item:', error);
     } finally {
@@ -1911,7 +2039,14 @@ const MenuItemForm: React.FC<MenuItemFormProps> = ({ item, onSave, onCancel }) =
         </div>
         {formData.image && (
           <div className="image-preview">
-            <img src={formData.image} alt="Preview" className="preview-image" />
+            <Image
+              src={formData.image}
+              alt={typeof item.name === 'string' ? item.name : getLocalizedText(item.name, 'en', 'Menu Item')}
+              width={60}
+              height={60}
+              className="item-image"
+              sizes="60px"
+            />
           </div>
         )}
       </div>

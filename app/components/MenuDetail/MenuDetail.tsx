@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import Image from "next/image";
 import { useLanguage } from "@/app/contexts";
 import { useCart } from "@/app/contexts/CartContext";
@@ -17,11 +17,11 @@ interface MenuDetailItem {
   id: number;
   category_id: number;
   key: string;
-  name: any; // JSONB field
-  description?: any; // JSONB field
+  name: string | Record<string, string>; // JSONB field
+  description?: string | Record<string, string>; // JSONB field
   image: string;
-  price: any; // JSONB field
-  original_price?: any; // JSONB field
+  price: number | Record<string, number>; // JSONB field
+  original_price?: number | Record<string, number>; // JSONB field
   is_available: boolean;
   is_discounted: boolean;
   has_sizes: boolean;
@@ -32,7 +32,7 @@ interface MenuDetailItem {
   updated_at: string;
   menu_categories?: {
     id: number;
-    title: any;
+    title: string | Record<string, string>;
     key: string;
   };
 }
@@ -51,131 +51,146 @@ const MenuDetail: React.FC<MenuDetailProps> = ({ menuItem, onBack }) => {
   const [error, setError] = useState<string | null>(null);
 
   // Helper function to get localized text from JSONB field
-  const getLocalizedText = (jsonbField: any, fallback: string = '') => {
-    if (!jsonbField) return fallback;
-    if (typeof jsonbField === 'string') return jsonbField;
-    if (typeof jsonbField === 'object') {
-      return jsonbField[language] || jsonbField['en'] || jsonbField['ar'] || Object.values(jsonbField)[0] || fallback;
-    }
-    return fallback;
-  };
+const getLocalizedText = useCallback((
+  jsonbField: string | Record<string, string> | null | undefined, 
+  fallback: string = ''
+): string => {
+  if (!jsonbField) return fallback;
+  if (typeof jsonbField === 'string') return jsonbField;
+  if (typeof jsonbField === 'object') {
+    return jsonbField[language] || jsonbField['en'] || jsonbField['ar'] || Object.values(jsonbField)[0] || fallback;
+  }
+  return fallback;
+}, [language]); // Add language as dependency since the function uses it
 
-  // Helper function to get price from JSONB field  // Helper function to get price from JSONB field
-  const getPrice = (priceField: any, size?: 'small' | 'large'): string => {
-    console.log('getPrice called with:', { priceField, size, type: typeof priceField });
+  // Helper function to get price from JSONB field
+  // Define interfaces for price structures
+interface PriceObject {
+  default?: number | string;
+  small?: number | string;
+  large?: number | string;
+  [key: string]: number | string | undefined;
+}
+
+type PriceField = number | string | PriceObject | null | undefined;
+
+const getPrice = (priceField: PriceField, size?: 'small' | 'large'): string => {
+  console.log('getPrice called with:', { priceField, size, type: typeof priceField });
+  
+  if (!priceField) {
+    console.log('No price field, returning 0T');
+    return "0T";
+  }
+  
+  if (typeof priceField === 'number') {
+    console.log('Price is number:', priceField);
+    return `${priceField}T`;
+  }
+  
+  if (typeof priceField === 'object') {
+    console.log('Price is object, keys:', Object.keys(priceField));
+    let price = 0;
     
-    if (!priceField) {
-      console.log('No price field, returning 0T');
-      return "0T";
-    }
-    
-    if (typeof priceField === 'number') {
-      console.log('Price is number:', priceField);
-      return `${priceField}T`;
-    }
-    
-    if (typeof priceField === 'object') {
-      console.log('Price is object, keys:', Object.keys(priceField));
-      let price = 0;
+    if (size) {
+      // For items with sizes
+      const sizePrice = priceField[size];
+      price = parseFloat(String(sizePrice)) || 0;
+      console.log(`Price for size ${size}:`, price);
+    } else {
+      // For single-size items, try different keys
+      console.log('Trying different keys for single-size item...');
+      console.log('priceField.default:', priceField.default);
+      console.log('priceField.small:', priceField.small);
+      console.log('priceField.large:', priceField.large);
+      console.log('Object.values(priceField):', Object.values(priceField));
       
-      if (size) {
-        // For items with sizes
-        price = parseFloat(priceField[size]) || 0;
-        console.log(`Price for size ${size}:`, price);
-      } else {
-        // For single-size items, try different keys
-        console.log('Trying different keys for single-size item...');
-        console.log('priceField.default:', priceField.default);
-        console.log('priceField.small:', priceField.small);
-        console.log('priceField.large:', priceField.large);
-        console.log('Object.values(priceField):', Object.values(priceField));
-        
-        price = parseFloat(priceField.default) || 
-                parseFloat(priceField.small) || 
-                parseFloat(priceField.large) ||
-                parseFloat(Object.values(priceField)[0] as string) || 0;
-        
-        console.log('Final calculated price:', price);
+      price = parseFloat(String(priceField.default)) || 
+              parseFloat(String(priceField.small)) || 
+              parseFloat(String(priceField.large)) ||
+              parseFloat(String(Object.values(priceField)[0])) || 0;
+      
+      console.log('Final calculated price:', price);
+    }
+    
+    if (price === 0) {
+      console.warn('Price calculated as 0, something might be wrong with the data structure');
+      // Let's try a more aggressive approach
+      for (const [key, value] of Object.entries(priceField)) {
+        console.log(`Trying key "${key}" with value:`, value, typeof value);
+        const testPrice = parseFloat(String(value));
+        if (!isNaN(testPrice) && testPrice > 0) {
+          price = testPrice;
+          console.log(`Found valid price ${price} from key "${key}"`);
+          break;
+        }
       }
+    }
+    
+    console.log('Returning price:', `${price}T`);
+    return `${price}T`;
+  }
+  
+  // If it's a string, try to parse it
+  if (typeof priceField === 'string') {
+    console.log('Price is string:', priceField);
+    const parsed = parseFloat(priceField);
+    if (!isNaN(parsed)) {
+      return `${parsed}T`;
+    }
+  }
+  
+  console.warn('Could not parse price field:', priceField);
+  return "0T"; // Changed from "?" to "0T"
+};
+
+
+  // Helper function to get numeric price for cart
+  const getNumericPrice = (priceField: PriceField, size?: 'small' | 'large'): number => {
+  console.log('getNumericPrice called with:', { priceField, size, type: typeof priceField });
+  
+  if (!priceField) return 0;
+  
+  if (typeof priceField === 'number') return priceField;
+  
+  if (typeof priceField === 'object') {
+    let price = 0;
+    
+    if (size) {
+      // For items with sizes
+      const sizePrice = priceField[size];
+      price = parseFloat(String(sizePrice)) || 0;
+    } else {
+      // For single-size items, try different keys
+      price = parseFloat(String(priceField.default)) || 
+              parseFloat(String(priceField.small)) || 
+              parseFloat(String(priceField.large)) ||
+              parseFloat(String(Object.values(priceField)[0])) || 0;
       
+      // If still 0, try more aggressively
       if (price === 0) {
-        console.warn('Price calculated as 0, something might be wrong with the data structure');
-        // Let's try a more aggressive approach
-        for (const [key, value] of Object.entries(priceField)) {
-          console.log(`Trying key "${key}" with value:`, value, typeof value);
+        for (const [, value] of Object.entries(priceField)) {
           const testPrice = parseFloat(String(value));
           if (!isNaN(testPrice) && testPrice > 0) {
             price = testPrice;
-            console.log(`Found valid price ${price} from key "${key}"`);
             break;
           }
         }
       }
-      
-      console.log('Returning price:', `${price}T`);
-      return `${price}T`;
     }
     
-    // If it's a string, try to parse it
-    if (typeof priceField === 'string') {
-      console.log('Price is string:', priceField);
-      const parsed = parseFloat(priceField);
-      if (!isNaN(parsed)) {
-        return `${parsed}T`;
-      }
+    return price;
+  }
+  
+  // If it's a string, try to parse it
+  if (typeof priceField === 'string') {
+    const parsed = parseFloat(priceField);
+    if (!isNaN(parsed)) {
+      return parsed;
     }
-    
-    console.warn('Could not parse price field:', priceField);
-    return "0T"; // Changed from "?" to "0T"
-  };
-
-
-  // Helper function to get numeric price for cart
-  const getNumericPrice = (priceField: any, size?: 'small' | 'large'): number => {
-    console.log('getNumericPrice called with:', { priceField, size, type: typeof priceField });
-    
-    if (!priceField) return 0;
-    
-    if (typeof priceField === 'number') return priceField;
-    
-    if (typeof priceField === 'object') {
-      let price = 0;
-      
-      if (size) {
-        // For items with sizes
-        price = parseFloat(priceField[size]) || 0;
-      } else {
-        // For single-size items, try different keys
-        price = parseFloat(priceField.default) || 
-                parseFloat(priceField.small) || 
-                parseFloat(priceField.large) ||
-                parseFloat(Object.values(priceField)[0] as string) || 0;
-        
-        // If still 0, try more aggressively
-        if (price === 0) {
-          for (const [key, value] of Object.entries(priceField)) {
-            const testPrice = parseFloat(String(value));
-            if (!isNaN(testPrice) && testPrice > 0) {
-              price = testPrice;
-              break;
-            }
-          }
-        }
-      }
-      
-      return price;
-    }
-    
-    // If it's a string, try to parse it
-    if (typeof priceField === 'string') {
-      const parsed = parseFloat(priceField);
-      if (!isNaN(parsed)) {
-        return parsed;
-      }
-    }
-    
-    return 0;
-  };
+  }
+  
+  return 0;
+};
 
 
   // Fetch menu items from your existing API
@@ -230,14 +245,14 @@ const MenuDetail: React.FC<MenuDetailProps> = ({ menuItem, onBack }) => {
     };
 
     fetchMenuItems();
-  }, [menuItem.id]);
+  }, [menuItem.id,getLocalizedText]);
 
   const handleAddToCart = (item: MenuDetailItem, size?: "small" | "large") => {
     console.log('handleAddToCart called:', { item: item.id, size, has_sizes: item.has_sizes });
     
     if (!item.is_available) return;
 
-    let priceToUse = getNumericPrice(item.price, size);
+    const priceToUse = getNumericPrice(item.price, size);
     let itemName = getLocalizedText(item.name);
     let itemId = item.id;
 
@@ -294,7 +309,6 @@ const MenuDetail: React.FC<MenuDetailProps> = ({ menuItem, onBack }) => {
       <section className={`menu-detail ${isRTL ? "rtl" : "ltr"}`}>
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>{t("loading") || "Loading..."}</p>
         </div>
       </section>
     );

@@ -2084,13 +2084,6 @@
 
 // RTL support for enhanced items
 .rtl {
-  .items-preview {
-    .item-preview {
-      .item-preview-content {
-        flex-direction: row-reverse;
-      }
-    }
-  }
   
   .order-item.enhanced {
     grid-template-columns: auto auto 1fr 80px;
