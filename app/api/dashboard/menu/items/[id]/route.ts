@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.SUPABASE_URL!,
@@ -54,18 +54,18 @@ interface MenuItemRequestBody {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const itemData: MenuItemRequestBody = await request.json();
-    console.log('Received update data for item:', params.id, itemData);
+    console.log("Received update data for item:", (await params).id, itemData);
 
     // Prepare the update data with proper typing
     const updateData: MenuItemUpdateData = {
       is_available: itemData.is_available,
       is_discounted: itemData.is_discounted,
       has_sizes: itemData.has_sizes,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
     };
 
     // Handle name (JSONB)
@@ -82,64 +82,65 @@ export async function PUT(
     if (itemData.has_sizes) {
       updateData.price = {
         small: parseFloat(String(itemData.price_small)) || 0,
-        large: parseFloat(String(itemData.price_large)) || 0
+        large: parseFloat(String(itemData.price_large)) || 0,
       };
       updateData.is_discounted_small = itemData.is_discounted_small || false;
       updateData.is_discounted_large = itemData.is_discounted_large || false;
-      
+
       if (itemData.is_discounted) {
         updateData.original_price = {
           small: parseFloat(String(itemData.original_price_small)) || 0,
-          large: parseFloat(String(itemData.original_price_large)) || 0
+          large: parseFloat(String(itemData.original_price_large)) || 0,
         };
       } else {
         updateData.original_price = null;
       }
     } else {
-      updateData.price = { 
-        default: parseFloat(String(itemData.price_default)) || 0
+      updateData.price = {
+        default: parseFloat(String(itemData.price_default)) || 0,
       };
-      
+
       if (itemData.is_discounted) {
-        updateData.original_price = { 
-          default: parseFloat(String(itemData.original_price_default)) || 0
+        updateData.original_price = {
+          default: parseFloat(String(itemData.original_price_default)) || 0,
         };
       } else {
         updateData.original_price = null;
       }
     }
 
-    console.log('Prepared update data:', updateData);
+    console.log("Prepared update data:", updateData);
 
     const { data: item, error } = await supabase
-      .from('menu_items')
+      .from("menu_items")
       .update(updateData)
-      .eq('id', params.id)
-      .select(`
+      .eq("id", (await params).id)
+      .select(
+        `
         *,
         menu_categories(id, title, key)
-      `)
+      `
+      )
       .single();
 
     if (error) {
-      console.error('Supabase update error:', error);
+      console.error("Supabase update error:", error);
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
       );
     }
 
-    console.log('Item updated successfully:', item);
+    console.log("Item updated successfully:", item);
 
     return NextResponse.json({
       success: true,
-      data: item
+      data: item,
     });
-
   } catch (error) {
-    console.error('Error updating menu item:', error);
+    console.error("Error updating menu item:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to update menu item' },
+      { success: false, error: "Failed to update menu item" },
       { status: 500 }
     );
   }
@@ -147,22 +148,24 @@ export async function PUT(
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('Fetching menu item with ID:', params.id);
+    console.log("Fetching menu item with ID:", (await params).id);
 
     const { data: item, error } = await supabase
-      .from('menu_items')
-      .select(`
+      .from("menu_items")
+      .select(
+        `
         *,
         menu_categories(id, title, key)
-      `)
-      .eq('id', params.id)
+      `
+      )
+      .eq("id", (await params).id)
       .single();
 
     if (error) {
-      console.error('Supabase fetch error:', error);
+      console.error("Supabase fetch error:", error);
       return NextResponse.json(
         { success: false, error: error.message },
         { status: 500 }
@@ -171,22 +174,21 @@ export async function GET(
 
     if (!item) {
       return NextResponse.json(
-        { success: false, error: 'Menu item not found' },
+        { success: false, error: "Menu item not found" },
         { status: 404 }
       );
     }
 
-    console.log('Item fetched successfully:', item);
+    console.log("Item fetched successfully:", item);
 
     return NextResponse.json({
       success: true,
-      data: item
+      data: item,
     });
-
   } catch (error) {
-    console.error('Error fetching menu item:', error);
+    console.error("Error fetching menu item:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch menu item' },
+      { success: false, error: "Failed to fetch menu item" },
       { status: 500 }
     );
   }
@@ -194,50 +196,49 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    console.log('Deleting menu item with ID:', params.id);
+    console.log("Deleting menu item with ID:", (await params).id);
 
     // First check if the item exists
     const { data: existingItem, error: fetchError } = await supabase
-      .from('menu_items')
-      .select('id, name')
-      .eq('id', params.id)
+      .from("menu_items")
+      .select("id, name")
+      .eq("id", (await params).id)
       .single();
 
     if (fetchError || !existingItem) {
       return NextResponse.json(
-        { success: false, error: 'Menu item not found' },
+        { success: false, error: "Menu item not found" },
         { status: 404 }
       );
     }
 
     // Delete the item
     const { error: deleteError } = await supabase
-      .from('menu_items')
+      .from("menu_items")
       .delete()
-      .eq('id', params.id);
+      .eq("id", (await params).id);
 
     if (deleteError) {
-      console.error('Supabase delete error:', deleteError);
+      console.error("Supabase delete error:", deleteError);
       return NextResponse.json(
         { success: false, error: deleteError.message },
         { status: 500 }
       );
     }
 
-    console.log('Item deleted successfully');
+    console.log("Item deleted successfully");
 
     return NextResponse.json({
       success: true,
-      message: 'Menu item deleted successfully'
+      message: "Menu item deleted successfully",
     });
-
   } catch (error) {
-    console.error('Error deleting menu item:', error);
+    console.error("Error deleting menu item:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to delete menu item' },
+      { success: false, error: "Failed to delete menu item" },
       { status: 500 }
     );
   }

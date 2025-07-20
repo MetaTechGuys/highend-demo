@@ -24,7 +24,7 @@ export async function PUT(
     const { data: coupon, error } = await supabase
       .from('discount_coupons') // Changed from 'coupons' to 'discount_coupons'
       .update(mappedData)
-      .eq('id', params.id)
+      .eq('id', (await params).id)
       .select()
       .single();
 
@@ -52,7 +52,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = createServerSupabaseClient();
@@ -60,7 +60,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('discount_coupons') // Changed from 'coupons' to 'discount_coupons'
       .delete()
-      .eq('id', params.id);
+      .eq('id', (await params).id);
 
     if (error) {
       console.error('Supabase error:', error);
