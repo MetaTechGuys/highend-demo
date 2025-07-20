@@ -12,7 +12,7 @@ export async function PUT(
     const { data: order, error } = await supabase
       .from("orders")
       .update({ status })
-      .eq("id", params.id)
+      .eq("id", (await params).id)
       .select()
       .single();
 
