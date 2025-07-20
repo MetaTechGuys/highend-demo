@@ -113,10 +113,9 @@ const Menus: React.FC = () => {
   if (loading) {
     return (
       <section className={`menus ${isRTL ? 'rtl' : 'ltr'}`}>
-        <div className="menus-loading">
-          <div className="loading-spinner">
+        <div className="loading-container">
+          <div className="loading-content">
             <div className="spinner"></div>
-            <p>{t("loading")}</p>
           </div>
         </div>
       </section>
@@ -126,11 +125,14 @@ const Menus: React.FC = () => {
   if (error) {
     return (
       <section className={`menus ${isRTL ? 'rtl' : 'ltr'}`}>
-        <div className="menus-error">
-          <div className="error-message">
-            <p>{error}</p>
+        <div className="error-container">
+          <div className="error-content">
+            <div className="error-icon">⚠️</div>
+            <h3 className="error-title">{t("errorTitle") || "Something went wrong"}</h3>
+            <p className="error-message">{error}</p>
             <button onClick={fetchMenuCategories} className="retry-button">
-              {t("retry") || "Retry"}
+              <span className="retry-icon">🔄</span>
+              {t("retry") || "Try Again"}
             </button>
           </div>
         </div>
@@ -199,9 +201,6 @@ const Menus: React.FC = () => {
                     >
                       <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
                     </svg>
-                    <span className="view-text">
-                      {t('viewMenu') || 'View Menu'}
-                    </span>
                   </div>
                 </div>
               </div>

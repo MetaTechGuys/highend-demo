@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLanguage } from '@/app/contexts';
+import Dashboard from '../Dashboard/Dashboard';
 import './LoginEmployee.scss';
 
 interface LoginFormData {
@@ -148,58 +149,12 @@ const LoginEmployee: React.FC<LoginEmployeeProps> = ({ onLoginSuccess }) => {
     }
   }, []);
 
-  // If logged in, show employee dashboard
+  // If logged in, show dashboard instead of old employee dashboard
   if (isLoggedIn && employee) {
-    return (
-      <section className={`employee-dashboard ${isRTL ? 'rtl' : 'ltr'}`}>
-        <div className="dashboard-container">
-          <div className="dashboard-header">
-            <div className="employee-info">
-              <h2>{t('welcomeBack') || 'Welcome back'}, {employee.name}!</h2>
-              <p className="employee-role">
-                {t('role') || 'Role'}: <span className={`role-badge ${employee.role}`}>{employee.role}</span>
-              </p>
-              <p className="employee-email">{employee.email}</p>
-            </div>
-            <button 
-              onClick={handleLogout}
-              className="btn btn-secondary logout-btn"
-            >
-              {t('logout') || 'Logout'}
-            </button>
-          </div>
-          
-          <div className="dashboard-content">
-            <div className="dashboard-card">
-              <h3>{t('quickActions') || 'Quick Actions'}</h3>
-              <div className="action-buttons">
-                <button className="action-btn">
-                  <span className="action-icon">📊</span>
-                  {t('viewReports') || 'View Reports'}
-                </button>
-                <button className="action-btn">
-                  <span className="action-icon">📋</span>
-                  {t('manageSurveys') || 'Manage Surveys'}
-                </button>
-                <button className="action-btn">
-                  <span className="action-icon">👥</span>
-                  {t('customerData') || 'Customer Data'}
-                </button>
-                {employee.role === 'admin' && (
-                  <button className="action-btn">
-                    <span className="action-icon">⚙️</span>
-                    {t('adminPanel') || 'Admin Panel'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+    return <Dashboard employee={employee} onLogout={handleLogout} />;
   }
 
-  // Login form
+  // Login form (unchanged)
   return (
     <section className={`employee-login ${isRTL ? 'rtl' : 'ltr'}`}>
       <div className="login-container">
@@ -244,7 +199,7 @@ const LoginEmployee: React.FC<LoginEmployeeProps> = ({ onLoginSuccess }) => {
                 id="password"
                 value={formData.password}
                 onChange={(e) => handleInputChange('password', e.target.value)}
-                className={errors.password ? 'error' : ''}
+                                className={errors.password ? 'error' : ''}
                 placeholder={t('enterPassword') || 'Enter your password'}
                 disabled={isLoading}
               />

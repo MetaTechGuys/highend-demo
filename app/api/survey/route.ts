@@ -3,89 +3,65 @@ import { createServerSupabaseClient } from '@/lib/supabase';
 
 export async function POST(request: NextRequest) {
   try {
+    const surveyData = await request.json();
     const supabase = createServerSupabaseClient();
-    const body = await request.json();
-    
-    // Get client IP and user agent for analytics
-    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
+
+    // Get client IP and user agent
+    const forwarded = request.headers.get('x-forwarded-for');
+    const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
     const userAgent = request.headers.get('user-agent') || 'unknown';
 
-    // Prepare data for database insertion
-    const surveyData = {
-      // Personal Information
-      name: body.name?.trim() || null,
-      email: body.email?.trim() || null,
-      phone: body.phone?.trim() || null,
-      age: body.age || null,
-      
-      // Visit Information
-      visit_frequency: body.visitFrequency || null,
-      last_visit: body.lastVisit || null,
-      party_size: body.partySize || null,
-      occasion: body.occasion || null,
-      
-      // Ratings (convert 0 to null for database)
-      food_quality: body.foodQuality || null,
-      service_quality: body.serviceQuality || null,
-      atmosphere: body.atmosphere || null,
-      value_for_money: body.valueForMoney || null,
-      
-      // Preferences
-      favorite_items: body.favoriteItems || [],
-      preferred_time: body.preferredTime || null,
-      
-      // Feedback
-      most_liked: body.mostLiked?.trim() || null,
-      improvements: body.improvements?.trim() || null,
-      recommendation: body.recommendation || null,
-      additional_comments: body.additionalComments?.trim() || null,
-      
-      // Marketing
-      hear_about_us: body.hearAboutUs || null,
-      newsletter: body.newsletter || false,
-      promotions: body.promotions || false,
-      
-      // Metadata
-      language: body.language || 'en',
+    // Map the form data to match your database schema
+    const mappedData = {
+      name: surveyData.name,
+      email: surveyData.email || null,
+      phone: surveyData.phone || null,
+      age: surveyData.age || null,
+      visit_frequency: surveyData.visitFrequency || null,
+      last_visit: surveyData.lastVisit || null,
+      party_size: surveyData.partySize || null,
+      occasion: surveyData.occasion || null,
+      food_quality: surveyData.foodQuality || null,
+      service_quality: surveyData.serviceQuality || null,
+      atmosphere: surveyData.atmosphere || null,
+      value_for_money: surveyData.valueForMoney || null,
+      favorite_items: surveyData.favoriteItems ? JSON.stringify(surveyData.favoriteItems) : null,
+      preferred_time: surveyData.preferredTime || null,
+      most_liked: surveyData.mostLiked || null,
+      improvements: surveyData.improvements || null,
+      recommendation: surveyData.recommendation || null,
+      additional_comments: surveyData.additionalComments || null,
+      hear_about_us: surveyData.hearAboutUs || null,
+      newsletter: surveyData.newsletter || false,
+      promotions: surveyData.promotions || false,
+      language: surveyData.language || 'en',
       ip_address: ip,
       user_agent: userAgent
     };
 
-    // Insert into database
-    const { data, error } = await supabase
+    const { data: survey, error } = await supabase
       .from('customer_surveys')
-      .insert([surveyData])
-      .select('id')
+      .insert([mappedData])
+      .select()
       .single();
 
     if (error) {
-      console.error('Database error:', error);
+      console.error('Supabase error:', error);
       return NextResponse.json(
-        { 
-          success: false, 
-          error: 'Failed to save survey response' 
-        },
+        { success: false, error: error.message },
         { status: 500 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      data: {
-        id: data.id,
-        message: 'Survey response saved successfully'
-      }
+      data: survey
     });
 
   } catch (error) {
-    console.error('Survey submission error:', error);
+    console.error('Error submitting survey:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Internal server error' 
-      },
+      { success: false, error: error instanceof Error ? error.message : 'Failed to submit survey' },
       { status: 500 }
     );
   }
