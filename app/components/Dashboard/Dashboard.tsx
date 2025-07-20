@@ -13,19 +13,38 @@ interface Employee {
   is_active: boolean;
 }
 
+// Update the Order interface to include enriched item data
+interface OrderItem {
+  id: number;
+  name: string;
+  price: number;
+  quantity: number;
+  categoryId: number;
+  size?: string;
+  // Enriched data from menu_items table
+  menuItem?: {
+    id: number;
+    name: any; // JSONB field
+    description: any; // JSONB field
+    image: string;
+    category_name?: string;
+    is_available: boolean;
+  };
+}
+
 interface Order {
-  id: number; // Changed from string to number (serial)
+  id: number;
   order_number: string;
   customer_name: string;
   customer_phone: string;
   customer_email: string;
   customer_address: string;
-  items: any[]; // JSONB field
+  items: OrderItem[]; // Updated to use OrderItem interface
   subtotal: number;
   discount_amount: number;
   discount_code: string;
   total_amount: number;
-  payment_status: string; // Changed from 'status' to 'payment_status'
+  payment_status: string;
   payment_url: string;
   payment_reference: string;
   notes: string;
@@ -142,19 +161,130 @@ const Dashboard: React.FC<DashboardProps> = ({ employee, onLogout }) => {
   const [showAddCoupon, setShowAddCoupon] = useState(false);
 
   // Fetch data functions
+// Enhanced fetch orders function with better error handling and debugging
 const fetchOrders = async () => {
   try {
-    const { data, error } = await supabase
+    setLoading(true);
+    
+    // First, get all orders
+    const { data: ordersData, error: ordersError } = await supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
-    setOrders(data || []);
+    if (ordersError) throw ordersError;
+
+    console.log('Raw orders data:', ordersData); // Debug log
+
+    // Get all unique menu item IDs from all orders
+    const allMenuItemIds = new Set<number>();
+    ordersData?.forEach(order => {
+      console.log('Processing order:', order.order_number, 'Items:', order.items); // Debug log
+      
+      if (order.items) {
+        let items = order.items;
+        
+        // Handle different JSONB structures
+        if (typeof items === 'string') {
+          try {
+            items = JSON.parse(items);
+          } catch (e) {
+            console.warn('Failed to parse items JSON for order:', order.order_number);
+            return;
+          }
+        }
+        
+        if (Array.isArray(items)) {
+          items.forEach((item: any) => {
+            // Try different possible ID field names
+            const itemId = item.id || item.menuItemId || item.menu_item_id || item.itemId;
+            if (itemId && !isNaN(parseInt(itemId))) {
+              allMenuItemIds.add(parseInt(itemId));
+            }
+          });
+        }
+      }
+    });
+
+    console.log('Found menu item IDs:', Array.from(allMenuItemIds)); // Debug log
+
+    // Fetch menu items data for all the IDs we found
+    let menuItemsData: any[] = [];
+    if (allMenuItemIds.size > 0) {
+      const { data, error: menuItemsError } = await supabase
+        .from('menu_items')
+        .select(`
+          id,
+          name,
+          description,
+          image,
+          is_available,
+          menu_categories!inner(id, title)
+        `)
+        .in('id', Array.from(allMenuItemIds));
+
+      if (menuItemsError) {
+        console.warn('Error fetching menu items:', menuItemsError);
+      } else {
+        menuItemsData = data || [];
+      }
+    }
+
+    console.log('Fetched menu items:', menuItemsData); // Debug log
+
+    // Create a map of menu items for quick lookup
+    const menuItemsMap = new Map();
+    menuItemsData?.forEach(item => {
+      menuItemsMap.set(item.id, {
+        ...item,
+        category_name: item.menu_categories?.title || 'Unknown Category'
+      });
+    });
+    
+
+    // Enrich orders with menu item data
+    const enrichedOrders = ordersData?.map(order => {
+      let items = order.items;
+      
+      // Handle different JSONB structures
+      if (typeof items === 'string') {
+        try {
+          items = JSON.parse(items);
+        } catch (e) {
+          items = [];
+        }
+      }
+      
+      if (!Array.isArray(items)) {
+        items = [];
+      }
+
+      const enrichedItems = items.map((item: any) => {
+        const itemId = item.id || item.menuItemId || item.menu_item_id || item.itemId;
+        const menuItem = itemId ? menuItemsMap.get(parseInt(itemId)) : null;
+        
+        return {
+          ...item,
+          id: itemId || item.id,
+          menuItem: menuItem || null
+        };
+      });
+
+      return {
+        ...order,
+        items: enrichedItems
+      };
+    }) || [];
+
+    console.log('Final enriched orders:', enrichedOrders); // Debug log
+    setOrders(enrichedOrders);
   } catch (error) {
     console.error('Error fetching orders:', error);
+  } finally {
+    setLoading(false);
   }
 };
+
 
 const fetchSurveys = async () => {
   try {
@@ -451,9 +581,33 @@ const renderOrdersTab = () => (
                   </span>
                   <div className="items-preview">
                     {Array.isArray(order.items) && order.items.slice(0, 2).map((item, index) => (
-                      <small key={index} className="item-preview">
-                        {item.name} x{item.quantity}
-                      </small>
+                      <div key={index} className="item-preview">
+                        <div className="item-preview-content">
+                          {item.menuItem?.image && (
+                            <img 
+                              src={item.menuItem.image} 
+                              alt={item.name}
+                              className="item-preview-image"
+                            />
+                          )}
+                          <div className="item-preview-text">
+                            <small className="item-name">
+                              {item.menuItem?.name ? 
+                                (typeof item.menuItem.name === 'object' ? 
+                                  item.menuItem.name[language] || item.menuItem.name['en'] : 
+                                  item.menuItem.name
+                                ) : 
+                                item.name
+                              }
+                            </small>
+                            <small className="item-quantity">x{item.quantity}</small>
+                            {item.size && <small className="item-size">({item.size})</small>}
+                            {item.menuItem && !item.menuItem.is_available && (
+                              <small className="item-unavailable">{t('unavailable') || 'Unavailable'}</small>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     ))}
                     {Array.isArray(order.items) && order.items.length > 2 && (
                       <small className="more-items">+{order.items.length - 2} more</small>
@@ -514,7 +668,7 @@ const renderOrdersTab = () => (
       </table>
     </div>
 
-    {/* Order Detail Modal */}
+    {/* Enhanced Order Detail Modal with linked menu item data */}
     {selectedOrder && (
       <div className="modal-overlay">
         <div className="modal large">
@@ -559,19 +713,61 @@ const renderOrdersTab = () => (
                 </div>
               </div>
 
-              {/* Order Items */}
+              {/* Enhanced Order Items with menu item data */}
               <div className="detail-section">
                 <h5>{t('orderItems') || 'Order Items'}</h5>
                 <div className="items-list">
                   {Array.isArray(selectedOrder.items) && selectedOrder.items.map((item, index) => (
-                    <div key={index} className="order-item">
+                    <div key={index} className="order-item enhanced">
+                      <div className="item-image-container">
+                        {item.menuItem?.image ? (
+                          <img 
+                            src={item.menuItem.image} 
+                            alt={item.name}
+                            className="item-image"
+                          />
+                        ) : (
+                          <div className="item-image-placeholder">
+                            <span>🍽️</span>
+                          </div>
+                        )}
+                      </div>
                       <div className="item-info">
-                        <div className="item-name">{item.name}</div>
+                        <div className="item-name">
+                          {item.menuItem?.name ? 
+                            (typeof item.menuItem.name === 'object' ? 
+                              item.menuItem.name[language] || item.menuItem.name['en'] : 
+                              item.menuItem.name
+                            ) : 
+                            item.name
+                          }
+                        </div>
                         {item.size && <div className="item-size">Size: {item.size}</div>}
-                        <div className="item-price">{parseFloat(item.price).toFixed(2)}T each</div>
+                        {item.menuItem?.category_name && (
+                          <div className="item-category">
+                            Category: {typeof item.menuItem.category_name === 'object' ? 
+                              item.menuItem.category_name[language] || item.menuItem.category_name['en'] :
+                              item.menuItem.category_name
+                            }
+                          </div>
+                        )}
+                        <div className="item-price">{parseFloat(item.price.toString()).toFixed(2)}T each</div>
+                        {item.menuItem?.description && (
+                          <div className="item-description">
+                            {typeof item.menuItem.description === 'object' ? 
+                              item.menuItem.description[language] || item.menuItem.description['en'] :
+                              item.menuItem.description
+                            }
+                          </div>
+                        )}
+                        {item.menuItem && !item.menuItem.is_available && (
+                          <div className="item-status unavailable">
+                            ⚠️ {t('currentlyUnavailable') || 'Currently Unavailable'}
+                          </div>
+                        )}
                       </div>
                       <div className="item-quantity">x{item.quantity}</div>
-                      <div className="item-total">{(parseFloat(item.price) * item.quantity).toFixed(2)}T</div>
+                      <div className="item-total">{(parseFloat(item.price.toString()) * item.quantity).toFixed(2)}T</div>
                     </div>
                   ))}
                 </div>
