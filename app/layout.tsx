@@ -6,6 +6,8 @@ import { CartProvider } from "./contexts/CartContext";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import Cart from "./components/Cart/Cart";
+import { Analytics } from '@vercel/analytics/next';
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -30,6 +32,7 @@ export default function RootLayout({
             <Cart />
           </CartProvider>
         </LanguageProvider>
+        <Analytics />
       </body>
     </html>
   );
