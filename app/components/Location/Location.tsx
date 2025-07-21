@@ -19,9 +19,9 @@ interface LocationProps {
 const Location: React.FC<LocationProps> = ({
   title,
   description,
-  latitude = 40.7128,
-  longitude = -74.0060,
-  zoom = 15,
+  latitude = 35.7389,
+  longitude = 51.5318,
+  zoom = 20,
   mapHeight = '400px',
   showDirectionsButton = true,
   address
@@ -97,12 +97,9 @@ const Location: React.FC<LocationProps> = ({
 
   // Restaurant contact info
   const contactInfo = {
-    address: address || t('address') || '123 Main Street, City, Country',
-    phone: t('phone') || '+1 (234) 567-890',
-    phone2: t('phone2') || '+0 (987) 654-321',
-    email: 'info@highend-restaurant.com',
-    instagram: 'https://instagram.com/yourcompany',
-    whatsapp: 'https://wa.me/1234567890'
+    address: address || t('address'),
+    phone: t('phone'),
+    instagram: 'https://www.instagram.com/highend.fastfood?utm_source=ig_web_button_share_sheet&igsh=bHVseHh3YjM3M2Q3',
   };
 
   // Render loading state while components are loading
@@ -251,10 +248,6 @@ const Location: React.FC<LocationProps> = ({
             {/* Location Details */}
             <div className="location-details">
               <div className="detail-item">
-                <strong>{t('address1') || 'Address'}:</strong>
-                <span>{contactInfo.address}</span>
-              </div>
-              <div className="detail-item">
                 <strong>{t('coordinates') || 'Coordinates'}:</strong>
                 <span 
                   className="coordinates-value" 
@@ -287,7 +280,6 @@ const Location: React.FC<LocationProps> = ({
                 <div className="contact-details">
                   <h4>{t('address1') || 'Address'}</h4>
                   <p>{contactInfo.address}</p>
-                  <p>{t('postalCode') || 'Postal Code: 12345'}</p>
                 </div>
               </div>
 
@@ -305,28 +297,6 @@ const Location: React.FC<LocationProps> = ({
                       {contactInfo.phone}
                     </a>
                   </p>
-                  <p>
-                    <a href={`tel:${contactInfo.phone2.replace(/\s/g, '')}`}>
-                      {contactInfo.phone2}
-                    </a>
-                  </p>
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="contact-item">
-                <div className="contact-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-                  </svg>
-                </div>
-                <div className="contact-details">
-                  <h4>{t('email') || 'Email'}</h4>
-                  <p>
-                    <a href={`mailto:${contactInfo.email}`}>
-                      {contactInfo.email}
-                    </a>
-                  </p>
                 </div>
               </div>
 
@@ -342,16 +312,8 @@ const Location: React.FC<LocationProps> = ({
                   <h4>{t('businessHours') || 'Business Hours'}</h4>
                   <div className="hours-list">
                     <div className="hours-item">
-                      <span>{t('monday') || 'Monday'} - {t('friday') || 'Friday'}</span>
-                      <span>11:00 AM - 10:00 PM</span>
-                    </div>
-                    <div className="hours-item">
-                      <span>{t('saturday') || 'Saturday'}</span>
-                      <span>10:00 AM - 11:00 PM</span>
-                    </div>
-                    <div className="hours-item">
-                      <span>{t('sunday') || 'Sunday'}</span>
-                      <span>10:00 AM - 9:00 PM</span>
+                      <span>{t('saturday') || 'Saturday'} - {t('friday') || 'Friday'}</span>
+                      <span>11:15 - 23:30</span>
                     </div>
                   </div>
                 </div>

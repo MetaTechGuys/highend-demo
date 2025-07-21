@@ -108,7 +108,7 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <Link href="/login" className="btn btn-outline">
+          <Link href="https://snappfood.ir/restaurant/menu/%D9%81%D8%B3%D8%AA_%D9%81%D9%88%D8%AF_%D9%87%D8%A7%DB%8C_%D8%A7%D9%86%D8%AF__%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D9%BE%D8%A7%D8%B1%D8%B3_-r-dqegwd/" className="btn btn-outline">
             {t('login1')}
           </Link>
           

@@ -146,14 +146,14 @@
 
     .map-actions {
       display: flex;
-      gap: 0.4rem;
-      margin-bottom: 1.5rem;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
       flex-wrap: wrap;
 
       .map-btn {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.8rem;
         padding: 0.6rem 0.8rem;
         border: none;
         border-radius: 8px;
@@ -388,7 +388,7 @@
 
         .hours-list {
           .hours-item {
-            flex-direction: row-reverse;
+            // flex-direction: row-reverse;
           }
         }
       }

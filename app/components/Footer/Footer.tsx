@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
             </h3>
             <div className="social-media">
                             <Link 
-                href="https://instagram.com/yourcompany" 
+                href="https://www.instagram.com/highend.fastfood?utm_source=ig_web_button_share_sheet&igsh=bHVseHh3YjM3M2Q3" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="social-link instagram"
@@ -52,8 +52,7 @@ const Footer: React.FC = () => {
                   </svg>
                 </div>
                 <div className="address-text">
-                  <p>{t('address') || '123 Main Street, City, Country'}</p>
-                  <p>{t('postalCode') || 'Postal Code: 12345'}</p>
+                  <p>{t('address') }</p>
                 </div>
               </div>
               <div className="phone">
@@ -64,10 +63,7 @@ const Footer: React.FC = () => {
                 </div>
                 <div className="phone-text">
                   <Link href="tel:+1234567890" className="phone-link">
-                    {t('phone') || '+1 (234) 567-890'}
-                  </Link>
-                  <Link href="tel:+0987654321" className="phone-link">
-                    {t('phone2') || '+0 (987) 654-321'}
+                    {t('phone')}
                   </Link>
                 </div>
               </div>
