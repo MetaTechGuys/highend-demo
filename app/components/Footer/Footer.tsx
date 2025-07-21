@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
                   </svg>
                 </div>
                 <div className="address-text">
-                  <p>{t('address') }</p>
+                  <p>{t('address')}</p>
                 </div>
               </div>
               <div className="phone">
