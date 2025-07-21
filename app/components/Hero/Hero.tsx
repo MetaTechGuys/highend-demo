@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { useLanguage } from '@/app/contexts';
 import './Hero.scss';
+import { track } from '@vercel/analytics/react';
 
 interface SlideData {
   id: number;
@@ -89,9 +90,12 @@ const Hero: React.FC = () => {
               <div className="image-overlay">
                 <div className="overlay-content">
                   <div className="button-container">
-                    <button className="cta-button">
+                    <a className="cta-button" href="/menu" onClick={() => {
+        track('OrderNow');
+
+      }}>
                       {t('getStarted')}
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -148,7 +152,10 @@ const Hero: React.FC = () => {
                   <button
                     key={index}
                     className={`pagination-dot ${index === currentSlide ? 'active' : ''}`}
-                    onClick={() => goToSlide(index)}
+                    onClick={() => {
+                      track(`Slide${index + 1}`);
+                      goToSlide(index);
+                    }}
                     aria-label={`Go to slide ${index + 1}`}
                     type="button"
                   />

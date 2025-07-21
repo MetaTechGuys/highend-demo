@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { useLanguage } from '@/app/contexts';
 import { useCart } from '@/app/contexts/CartContext';
 import './Navbar.scss';
+import { track } from '@vercel/analytics/react';
 
 const Navbar: React.FC = () => {
   const { language, setLanguage, isRTL, t } = useLanguage();
@@ -41,7 +42,10 @@ const Navbar: React.FC = () => {
       <div className="navbar-container">
         {/* Logo */}
         <div className="navbar-logo">
-          <Link href="/" onClick={closeMobileMenu}>
+          <Link href="/" onClick={() => {
+            track('Logo');
+            closeMobileMenu();
+          }}>
             <Image 
               src="/images/logo.webp" 
               alt="Logo" 
@@ -55,13 +59,22 @@ const Navbar: React.FC = () => {
 
         {/* Desktop Navigation Links */}
         <div className="navbar-links">
-          <Link href="/" className="nav-link">
+          <Link href="/" className="nav-link" onClick={() => {
+        track('homemenu');
+      }}
+>
             {t('home')}
           </Link>
-          <Link href="/menu" className="nav-link">
+          <Link href="/menu" className="nav-link" onClick={() => {
+        track('menumenu');
+      }}
+>
             {t('about')}
           </Link>
-          <Link href="/contact" className="nav-link">
+          <Link href="/contact" className="nav-link" onClick={() => {
+        track('contactmenu');
+      }}
+>
             {t('services')}
           </Link>
         </div>
@@ -88,17 +101,21 @@ const Navbar: React.FC = () => {
               <span className={`dropdown-arrow ${isLanguageDropdownOpen ? 'open' : ''}`}>
                 ▼
               </span>
-            </button>
+            </button >
             {isLanguageDropdownOpen && (
               <div className="language-dropdown">
                 <button
-                  onClick={() => handleLanguageChange('en')}
+                onClick={() => {track('enlanguage');
+                  handleLanguageChange('en')
+                }} 
                   className={`dropdown-item ${language === 'en' ? 'active' : ''}`}
                 >
                   English
                 </button>
                 <button
-                  onClick={() => handleLanguageChange('fa')}
+                onClick={() => {track('falanguage');
+                  handleLanguageChange('fa')
+                }}
                   className={`dropdown-item ${language === 'fa' ? 'active' : ''}`}
                 >
                   فارسی
@@ -108,12 +125,19 @@ const Navbar: React.FC = () => {
           </div>
 
           {/* Action Buttons */}
-          <Link href="https://snappfood.ir/restaurant/menu/%D9%81%D8%B3%D8%AA_%D9%81%D9%88%D8%AF_%D9%87%D8%A7%DB%8C_%D8%A7%D9%86%D8%AF__%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D9%BE%D8%A7%D8%B1%D8%B3_-r-dqegwd/" className="btn btn-outline">
+          <Link href="https://snappfood.ir/restaurant/menu/%D9%81%D8%B3%D8%AA_%D9%81%D9%88%D8%AF_%D9%87%D8%A7%DB%8C_%D8%A7%D9%86%D8%AF__%D8%AA%D9%87%D8%B1%D8%A7%D9%86%D9%BE%D8%A7%D8%B1%D8%B3_-r-dqegwd/" className="btn btn-outline" onClick={() => {
+        track('snappfood');
+      }}
+>
             {t('login1')}
           </Link>
           
           {/* Cart Button (replaces Gift Cards) */}
-          <button onClick={openCart} className="btn btn-primary cart-btn">
+          <button className="btn btn-primary cart-btn" onClick={() => {
+            track('cart');
+            openCart();
+          }}
+>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="cart-icon">
                 <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
