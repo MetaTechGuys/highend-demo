@@ -1006,13 +1006,6 @@
   }
 }
 
-// RTL support for quantity controls
-.menu-detail.rtl {
-  .quantity-controls {
-    flex-direction: row-reverse;
-  }
-}
-
 // Responsive styles for quantity controls
 @media (max-width: 768px) {
   .quantity-controls {
@@ -1030,7 +1023,6 @@
     }
   }
 }
-// Add these styles to your existing MenuDetail.scss
 
 // Unavailable items - grayscale effect
 .menu-detail-item.unavailable {
@@ -1372,7 +1364,7 @@
     width: 30px;
     height: 30px;
     border: none;
-    background: var(--primary-color, #007bff);
+    background: var(--primary-color, #f1592f);
     color: white;
     border-radius: 4px;
     cursor: pointer;
@@ -1383,7 +1375,7 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-      background: var(--primary-color-dark, #0056b3);
+      background: var(--primary-color-dark, #ff4444);
     }
 
     &.decrease:hover {

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCart } from '@/app/contexts/CartContext';
 import { useLanguage } from '@/app/contexts';
 import './Cart.scss';
@@ -19,6 +19,7 @@ const Cart: React.FC = () => {
   } = useCart();
   const { isRTL, t } = useLanguage();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleQuantityChange = (id: number, categoryId: number, newQuantity: number) => {
     updateQuantity(id, categoryId, newQuantity);
@@ -38,8 +39,41 @@ const Cart: React.FC = () => {
     router.push('/checkout');
   };
 
+  // Check if we should show the overlay island
+  const shouldShowOverlayIsland = pathname === '/menu' && cartItems.length > 0 && !isCartOpen;
+
   return (
     <>
+      {/* Cart Footer Overlay Island - Only on /menu page, desktop, when cart not empty and cart is closed */}
+      {shouldShowOverlayIsland && (
+        <div className={`cart-footer-island ${isRTL ? 'rtl' : ''}`}>
+          <div className="cart-total">
+            <div className="total-row">
+              <span className="total-label">{t('total') || 'Total'}:</span>
+              <span className="total-price">{formatPrice(getTotalPrice())}</span>
+            </div>
+          </div>
+
+          <div className="cart-actions">
+            <button 
+              className="view-cart-btn"
+              onClick={() => setIsCartOpen(true)}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M7 18c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12L8.1 13h7.45c.75 0 1.41-.41 1.75-1.03L21.7 4H5.21l-.94-2H1zm16 16c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
+              {t('viewCart') || 'View Cart'} ({cartItems.length})
+            </button>
+            <button 
+              className="checkout-btn"
+              onClick={handleCheckout}
+            >
+              {t('checkout') || 'Checkout'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Overlay */}
       {isCartOpen && (
         <div 
@@ -119,7 +153,7 @@ const Cart: React.FC = () => {
                         aria-label="Remove item"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                          <path d="M6 19c0 1.1.9 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                         </svg>
                       </button>
                     </div>

@@ -140,9 +140,29 @@ interface DashboardProps {
   onLogout: () => void;
 }
 
+// Add this interface with your other interfaces
+interface Customer {
+  id: number;
+  name: string;
+  phone: string;
+  address: string;
+  email: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CustomerFormData {
+  name: string;
+  phone: string;
+  email: string;
+  address: string;
+}
+
+
+
 const Dashboard: React.FC<DashboardProps> = ({ employee, onLogout }) => {
   const { t, isRTL, language } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'orders' | 'surveys' | 'menu' | 'coupons'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'surveys' | 'menu' | 'coupons' | 'customers'>('orders');
   const [loading, setLoading] = useState(false);
   
   // Data states
@@ -151,9 +171,10 @@ const Dashboard: React.FC<DashboardProps> = ({ employee, onLogout }) => {
   const [menuCategories, setMenuCategories] = useState<MenuCategory[]>([]);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [selectedSurvey, setSelectedSurvey] = useState<Survey | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   
   // UI states
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -161,8 +182,12 @@ const Dashboard: React.FC<DashboardProps> = ({ employee, onLogout }) => {
   const [editingCoupon, setEditingCoupon] = useState<Coupon | null>(null);
   const [showAddCoupon, setShowAddCoupon] = useState(false);
 
+  // Add these with your existing UI states
+const [showAddCustomer, setShowAddCustomer] = useState(false);
+const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+
+
   // Fetch data functions
-// Enhanced fetch orders function with better error handling and debugging
 const fetchOrders = async () => {
   try {
     setLoading(true);
@@ -307,6 +332,20 @@ const fetchOrders = async () => {
   }
 };
 
+const fetchCustomers = async () => {
+  try {
+    const response = await fetch('/api/dashboard/customers');
+    const result = await response.json();
+    
+    if (result.success) {
+      setCustomers(result.data || []);
+    } else {
+      console.error('Error fetching customers:', result.error);
+    }
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+  }
+};
 
 
 const fetchSurveys = async () => {
@@ -374,6 +413,79 @@ const fetchCoupons = async () => {
     console.error('Error fetching coupons:', error);
   }
 };
+
+const createCustomer = async (customerData: Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => {
+  try {
+    const response = await fetch('/api/dashboard/customers', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customerData),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      fetchCustomers();
+      setShowAddCustomer(false);
+      alert(t('customerCreated') || 'Customer created successfully!');
+    } else {
+      alert(result.error || 'Failed to create customer');
+    }
+  } catch (error) {
+    console.error('Error creating customer:', error);
+    alert(t('errorCreatingCustomer') || 'Error creating customer');
+  }
+};
+
+ 
+const updateCustomer = async (customerData: Customer) => {
+  try {
+    const response = await fetch(`/api/dashboard/customers/${customerData.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(customerData),
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      fetchCustomers();
+      setEditingCustomer(null);
+      alert(t('customerUpdated') || 'Customer updated successfully!');
+    } else {
+      alert(result.error || 'Failed to update customer');
+    }
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    alert(t('errorUpdatingCustomer') || 'Error updating customer');
+  }
+};
+
+const deleteCustomer = async (customerId: number) => {
+  if (!confirm(t('confirmDeleteCustomer') || 'Are you sure you want to delete this customer?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/dashboard/customers/${customerId}`, {
+      method: 'DELETE',
+    });
+
+    const result = await response.json();
+    if (result.success) {
+      fetchCustomers();
+      alert(t('customerDeleted') || 'Customer deleted successfully!');
+    } else {
+      alert(result.error || 'Failed to delete customer');
+    }
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    alert(t('errorDeletingCustomer') || 'Error deleting customer');
+  }
+};
+
 
 
   // Update functions
@@ -517,27 +629,30 @@ const deleteCoupon = async (couponId: string) => {
 
 
   // Load data based on active tab
-  useEffect(() => {
-    setLoading(true);
-    switch (activeTab) {
-      case 'orders':
-        fetchOrders();
-        break;
-      case 'surveys':
-        fetchSurveys();
-        break;
-      case 'menu':
-        fetchMenuCategories();
-        if (selectedCategory) {
-          fetchMenuItems(selectedCategory);
-        }
-        break;
-      case 'coupons':
-        fetchCoupons();
-        break;
-    }
-    setLoading(false);
-  }, [activeTab, selectedCategory]);
+useEffect(() => {
+  setLoading(true);
+  switch (activeTab) {
+    case 'orders':
+      fetchOrders();
+      break;
+    case 'surveys':
+      fetchSurveys();
+      break;
+    case 'menu':
+      fetchMenuCategories();
+      if (selectedCategory) {
+        fetchMenuItems(selectedCategory);
+      }
+      break;
+    case 'coupons':
+      fetchCoupons();
+      break;
+    case 'customers':
+      fetchCustomers();
+      break;
+  }
+  setLoading(false);
+}, [activeTab, selectedCategory]);
 
   // Render Orders Tab
 const renderOrdersTab = () => (
@@ -718,10 +833,10 @@ const renderOrdersTab = () => (
                 <h5>{t('customerInfo') || 'Customer Information'}</h5>
                 <div className="detail-grid">
                   <div><strong>{t('name') || 'Name'}:</strong> {selectedOrder.customer_name}</div>
-                  <div><strong>{t('phone') || 'Phone'}:</strong> {selectedOrder.customer_phone}</div>
+                  <div><strong>{t('phone1') || 'Phone'}:</strong> {selectedOrder.customer_phone}</div>
                   <div><strong>{t('email') || 'Email'}:</strong> {selectedOrder.customer_email || 'N/A'}</div>
                   <div className="full-width">
-                    <strong>{t('address') || 'Address'}:</strong> {selectedOrder.customer_address}
+                    <strong>{t('address1') || 'Address'}:</strong> {selectedOrder.customer_address}
                   </div>
                 </div>
               </div>
@@ -1424,6 +1539,246 @@ const renderCouponsTab = () => (
   </div>
 );
 
+// Render Customers Tab
+const renderCustomersTab = () => (
+  <div className="tab-content">
+    <div className="tab-header">
+      <h3>{t('customerManagement') || 'Customer Management'}</h3>
+      <button
+        className="btn btn-primary"
+        onClick={() => setShowAddCustomer(true)}
+      >
+        {t('addCustomer') || 'Add Customer'}
+      </button>
+      <div className="stats">
+        <span className="stat">
+          {t('totalCustomers') || 'Total Customers'}: {customers.length}
+        </span>
+        <span className="stat">
+          {t('withEmail') || 'With Email'}: {customers.filter(customer => customer.email).length}
+        </span>
+        <span className="stat">
+          {t('recentCustomers') || 'This Month'}: {
+            customers.filter(customer => 
+              new Date(customer.created_at).getMonth() === new Date().getMonth() &&
+              new Date(customer.created_at).getFullYear() === new Date().getFullYear()
+            ).length
+          }
+        </span>
+      </div>
+    </div>
+    
+    <div className="table-container">
+      <table className="data-table">
+        <thead>
+          <tr>
+            <th>{t('name') || 'Name'}</th>
+            <th>{t('phone1') || 'Phone'}</th>
+            <th>{t('email') || 'Email'}</th>
+            <th>{t('address1') || 'Address'}</th>
+            <th>{t('firstOrder') || 'First Order'}</th>
+            <th>{t('lastUpdated') || 'Last Updated'}</th>
+            <th>{t('actions') || 'Actions'}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {customers.map((customer) => (
+            <tr key={customer.id}>
+              <td>
+                <div className="customer-name">
+                  <strong>{customer.name}</strong>
+                </div>
+              </td>
+              <td>
+                <div className="customer-phone">
+                  <a href={`tel:${customer.phone}`} className="phone-link">
+                    {customer.phone}
+                  </a>
+                </div>
+              </td>
+              <td>
+                <div className="customer-email">
+                  {customer.email ? (
+                    <a href={`mailto:${customer.email}`} className="email-link">
+                      {customer.email}
+                    </a>
+                  ) : (
+                    <span className="no-email">{t('noEmail') || 'No email'}</span>
+                  )}
+                </div>
+              </td>
+              <td>
+                <div className="customer-address">
+                  <span className="address-preview">
+                    {customer.address.length > 50 
+                      ? `${customer.address.substring(0, 50)}...` 
+                      : customer.address
+                    }
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div className="date-info">
+                  <div>{new Date(customer.created_at).toLocaleDateString()}</div>
+                  <small>{new Date(customer.created_at).toLocaleTimeString()}</small>
+                </div>
+              </td>
+              <td>
+                <div className="date-info">
+                  <div>{new Date(customer.updated_at).toLocaleDateString()}</div>
+                  <small>{new Date(customer.updated_at).toLocaleTimeString()}</small>
+                </div>
+              </td>
+              <td>
+                <div className="action-buttons">
+                  <button 
+                    className="btn-view" 
+                    onClick={() => setSelectedCustomer(customer)}
+                    title={t('viewDetails') || 'View Details'}
+                  >
+                    👁️
+                  </button>
+                  <button
+                    className="btn-edit"
+                    onClick={() => setEditingCustomer(customer)}
+                    title={t('edit') || 'Edit'}
+                  >
+                    ✏️
+                  </button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => deleteCustomer(customer.id)}
+                    title={t('delete') || 'Delete'}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* Add/Edit Customer Modal */}
+    {(showAddCustomer || editingCustomer) && (
+      <div className="modal-overlay">
+        <div className="modal">
+          <div className="modal-header">
+            <h4>{editingCustomer ? (t('editCustomer') || 'Edit Customer') : (t('addCustomer') || 'Add Customer')}</h4>
+            <button
+              className="modal-close"
+              onClick={() => {
+                setShowAddCustomer(false);
+                setEditingCustomer(null);
+              }}
+            >
+              ×
+            </button>
+          </div>
+          <div className="modal-body">
+            <CustomerForm
+              customer={editingCustomer}
+              onSave={(customer) => {
+                if ('id' in customer) {
+                  return updateCustomer(customer as Customer);
+                } else {
+                  return createCustomer(customer);
+                }
+              }}
+              onCancel={() => {
+                setShowAddCustomer(false);
+                setEditingCustomer(null);
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Customer Detail Modal */}
+    {selectedCustomer && (
+      <div className="modal-overlay">
+        <div className="modal large">
+          <div className="modal-header">
+            <h4>{t('customerDetails') || 'Customer Details'} - {selectedCustomer.name}</h4>
+            <button
+              className="modal-close"
+              onClick={() => setSelectedCustomer(null)}
+            >
+              ×
+            </button>
+          </div>
+          <div className="modal-body">
+            <div className="customer-details">
+              {/* Customer Information */}
+              <div className="detail-section">
+                <h5>{t('customerInfo') || 'Customer Information'}</h5>
+                <div className="detail-grid">
+                  <div><strong>{t('name') || 'Name'}:</strong> {selectedCustomer.name}</div>
+                  <div><strong>{t('phone') || 'Phone'}:</strong> 
+                    <a href={`tel:${selectedCustomer.phone}`} className="phone-link">
+                      {selectedCustomer.phone}
+                    </a>
+                  </div>
+                  <div><strong>{t('email') || 'Email'}:</strong> 
+                    {selectedCustomer.email ? (
+                      <a href={`mailto:${selectedCustomer.email}`} className="email-link">
+                        {selectedCustomer.email}
+                      </a>
+                    ) : (
+                      <span className="no-email">{t('noEmail') || 'No email provided'}</span>
+                    )}
+                  </div>
+                  <div className="full-width">
+                    <strong>{t('address') || 'Address'}:</strong> 
+                    <div className="address-full">{selectedCustomer.address}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Timeline Information */}
+              <div className="detail-section">
+                <h5>{t('timeline') || 'Timeline'}</h5>
+                <div className="detail-grid">
+                  <div><strong>{t('firstSeen') || 'First Seen'}:</strong> {new Date(selectedCustomer.created_at).toLocaleString()}</div>
+                  <div><strong>{t('lastUpdated') || 'Last Updated'}:</strong> {new Date(selectedCustomer.updated_at).toLocaleString()}</div>
+                  <div><strong>{t('customerSince') || 'Customer Since'}:</strong> 
+                    {Math.floor((new Date().getTime() - new Date(selectedCustomer.created_at).getTime()) / (1000 * 60 * 60 * 24))} {t('daysAgo') || 'days ago'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button
+              className="btn btn-secondary"
+              onClick={() => setSelectedCustomer(null)}
+            >
+              {t('close') || 'Close'}
+            </button>
+            <button
+              className="btn btn-primary"
+              onClick={() => window.open(`tel:${selectedCustomer.phone}`)}
+            >
+              {t('call') || 'Call Customer'}
+            </button>
+            {selectedCustomer.email && (
+              <button
+                className="btn btn-primary"
+                onClick={() => window.open(`mailto:${selectedCustomer.email}`)}
+              >
+                {t('email') || 'Send Email'}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+
 
   return (
     <section className={`dashboard ${isRTL ? 'rtl' : 'ltr'}`}>
@@ -1474,6 +1829,13 @@ const renderCouponsTab = () => (
             <span className="tab-icon">🎫</span>
             {t('coupons') || 'Coupons'}
           </button>
+          <button
+  className={`tab-btn ${activeTab === 'customers' ? 'active' : ''}`}
+  onClick={() => setActiveTab('customers')}
+>
+  <span className="tab-icon">👥</span>
+  {t('customers') || 'Customers'}
+</button>
         </div>
 
         {/* Dashboard Content */}
@@ -1489,6 +1851,7 @@ const renderCouponsTab = () => (
               {activeTab === 'surveys' && renderSurveysTab()}
               {activeTab === 'menu' && renderMenuTab()}
               {activeTab === 'coupons' && renderCouponsTab()}
+              {activeTab === 'customers' && renderCustomersTab()}
             </>
           )}
         </div>
@@ -1637,7 +2000,6 @@ const CouponForm: React.FC<CouponFormProps> = ({ coupon, onSave, onCancel }) => 
   );
 };
 
-// Add this interface for the enhanced form
 interface MenuItemFormProps {
   item: MenuItem;
   onSave: (item: MenuItem) => void;
@@ -2080,6 +2442,152 @@ const getPrice = (priceField: PriceField, key?: string): number => {
   );
 };
 
+// Customer Form Component
+interface CustomerFormProps {
+  customer?: Customer | null;
+  onSave: (customer: Customer | Omit<Customer, 'id' | 'created_at' | 'updated_at'>) => void;
+  onCancel: () => void;
+}
+
+const CustomerForm: React.FC<CustomerFormProps> = ({ customer, onSave, onCancel }) => {
+  const { t } = useLanguage();
+  const [formData, setFormData] = useState<CustomerFormData>({
+    name: customer?.name || '',
+    phone: customer?.phone || '',
+    email: customer?.email || '',
+    address: customer?.address || ''
+  });
+  const [errors, setErrors] = useState<Partial<CustomerFormData>>({});
+
+  const validateForm = (): boolean => {
+    const newErrors: Partial<CustomerFormData> = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = t('nameRequired') || 'Name is required';
+    }
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = t('phoneRequired') || 'Phone is required';
+    } else if (!/^[\d\s\-\+\(\)]+$/.test(formData.phone)) {
+      newErrors.phone = t('phoneInvalid') || 'Invalid phone number';
+    }
+    
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = t('emailInvalid') || 'Invalid email address';
+    }
+    
+    if (!formData.address.trim()) {
+      newErrors.address = t('addressRequired') || 'Address is required';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateForm()) return;
+    
+    if (customer) {
+      // ✅ Update existing customer with proper typing
+      const updatedCustomer: Customer = {
+        ...customer,
+        ...formData
+      };
+      onSave(updatedCustomer);
+    } else {
+      // ✅ Create new customer with proper typing
+      const newCustomerData: Omit<Customer, 'id' | 'created_at' | 'updated_at'> = {
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address
+      };
+      onSave(newCustomerData);
+    }
+  };
+
+  const handleInputChange = (field: keyof CustomerFormData, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({
+        ...prev,
+        [field]: undefined
+      }));
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="customer-form">
+      <div className="form-group">
+        <label>{t('name') || 'Name'} *</label>
+        <input
+          type="text"
+          value={formData.name}
+          onChange={(e) => handleInputChange('name', e.target.value)}
+          className={errors.name ? 'error' : ''}
+          placeholder={t('enterName') || 'Enter customer name'}
+          required
+        />
+        {errors.name && <span className="error-message">{errors.name}</span>}
+      </div>
+      <div className="form-group">
+        <label>{t('phone1') || 'Phone'} *</label>
+        <input
+          type="tel"
+          value={formData.phone}
+          onChange={(e) => handleInputChange('phone', e.target.value)}
+          className={errors.phone ? 'error' : ''}
+          placeholder={t('enterPhone') || 'Enter phone number'}
+          required
+        />
+        {errors.phone && <span className="error-message">{errors.phone}</span>}
+      </div>
+
+      <div className="form-group">
+        <label>{t('email') || 'Email'}</label>
+        <input
+          type="email"
+          value={formData.email}
+          onChange={(e) => handleInputChange('email', e.target.value)}
+          className={errors.email ? 'error' : ''}
+          placeholder={t('enterEmail') || 'Enter email (optional)'}
+        />
+        {errors.email && <span className="error-message">{errors.email}</span>}
+      </div>
+
+      <div className="form-group">
+        <label>{t('address1') || 'Address'} *</label>
+        <textarea
+          value={formData.address}
+          onChange={(e) => handleInputChange('address', e.target.value)}
+          className={errors.address ? 'error' : ''}
+          placeholder={t('enterAddress') || 'Enter full address'}
+          rows={3}
+          required
+        />
+        {errors.address && <span className="error-message">{errors.address}</span>}
+      </div>
+
+      <div className="form-actions">
+        <button type="button" className="btn btn-secondary" onClick={onCancel}>
+          {t('cancel') || 'Cancel'}
+        </button>
+        <button type="submit" className="btn btn-primary">
+          {customer ? (t('update') || 'Update') : (t('create') || 'Create')}
+        </button>
+      </div>
+    </form>
+  );
+};
+
+      
 
 
 

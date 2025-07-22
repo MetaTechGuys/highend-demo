@@ -1049,3 +1049,358 @@
     transform: none;
   }
 }
+// Order Tracking Styles
+.order-tracking {
+  margin: 32px 0;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 1px solid #e9ecef;
+
+  .tracking-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+}
+
+.progress-steps {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  
+  // Progress line that connects all steps
+  &::before {
+    content: '';
+    position: absolute;
+    left: 19px; // Center of the circle (40px width / 2 - 1px for line width)
+    top: 40px; // Start after first circle
+    bottom: 60px; // End before last circle
+    width: 2px;
+    background: #e9ecef;
+    z-index: 1;
+  }
+  
+  // Dynamic progress line that fills based on current step
+  &::after {
+    content: '';
+    position: absolute;
+    left: 19px;
+    top: 40px;
+    width: 2px;
+    background: #28a745;
+    z-index: 2;
+    transition: height 0.5s ease;
+  }
+  
+  // Progress line heights based on current step
+  &.step-1::after {
+    height: 0%;
+  }
+  
+  &.step-2::after {
+    height: 33.33%;
+  }
+  
+  &.step-3::after {
+    height: 48.88%;
+  }
+  
+  &.step-4::after {
+    height: 100%;
+  }
+}
+
+.progress-step {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  z-index: 3; // Above the progress lines
+  
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .step-info {
+    flex: 1;
+    padding-top: 8px; // Align with circle center
+    
+    .step-title {
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: 4px;
+      transition: color 0.3s ease;
+    }
+    
+    .step-description {
+      font-size: 0.875rem;
+      color: #666;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    
+    .step-active {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      
+      .pulse-dot {
+        width: 8px;
+        height: 8px;
+        background: #007bff;
+        border-radius: 50%;
+        animation: pulse 1.5s infinite;
+      }
+      
+      .active-text {
+        font-size: 0.875rem;
+        color: #007bff;
+        font-weight: 500;
+      }
+    }
+  }
+  
+  &.completed {
+    .step-circle {
+      background: #28a745;
+      color: white;
+      border-color: #28a745;
+      
+      // Add checkmark for completed steps
+      .step-number::after {
+        content: '✓';
+        font-size: 0.875rem;
+      }
+      
+      .step-number {
+        font-size: 0;
+      }
+    }
+    
+    .step-title {
+      color: #28a745;
+    }
+  }
+  
+  &.active {
+    .step-circle {
+      background: #007bff;
+      color: white;
+      border-color: #007bff;
+      animation: pulse-circle 2s infinite;
+    }
+    
+    .step-title {
+      color: #007bff;
+      font-weight: 700;
+    }
+  }
+  
+  &.pending {
+    .step-circle {
+      background: #f8f9fa;
+      color: #6c757d;
+      border-color: #e9ecef;
+    }
+    
+    .step-title {
+      color: #6c757d;
+    }
+  }
+}
+
+.tracking-info {
+  text-align: center;
+  margin-top: 24px;
+  
+  .last-updated {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 0;
+    font-style: italic;
+  }
+}
+
+.contact-support {
+  margin: 32px 0;
+  padding: 24px;
+  background: #fff;
+  border-radius: 12px;
+  border: 2px solid #e3f2fd;
+  text-align: center;
+
+  .contact-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+  }
+
+  .contact-description {
+    font-size: 0.875rem;
+    color: #666;
+    margin-bottom: 16px;
+  }
+
+  .contact-phone {
+    margin: 16px 0;
+    
+    .phone-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.125rem;
+      transition: all 0.3s ease;
+      
+      &:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+      }
+      
+      .phone-icon {
+        font-size: 1.25rem;
+      }
+      
+      .phone-number {
+        font-family: monospace;
+      }
+    }
+  }
+
+  .contact-hours {
+    font-size: 0.875rem;
+    color: #666;
+    margin: 8px 0 0 0;
+    font-style: italic;
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulse-circle {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .order-tracking {
+    margin: 24px 0;
+    padding: 16px;
+    
+    .tracking-title {
+      font-size: 1.125rem;
+      margin-bottom: 20px;
+    }
+  }
+  
+  .progress-steps {
+    gap: 16px;
+    
+    &::before,
+    &::after {
+      left: 15px; // Adjust for smaller circles
+    }
+  }
+  
+  .progress-step {
+    gap: 12px;
+    
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      font-size: 0.875rem;
+    }
+    
+    .step-info {
+      padding-top: 4px;
+      
+      .step-title {
+        font-size: 0.875rem;
+      }
+      
+      .step-description {
+        font-size: 0.8125rem;
+      }
+    }
+  }
+  
+  .contact-support {
+    margin: 24px 0;
+    padding: 16px;
+    
+    .contact-title {
+      font-size: 1rem;
+    }
+    
+    .contact-phone .phone-link {
+      padding: 10px 20px;
+      font-size: 1rem;
+      
+      .phone-icon {
+        font-size: 1.125rem;
+      }
+    }
+  }
+}
+
+// RTL Support
+.rtl {
+  
+  .progress-step {
+    flex-direction: row-reverse;
+  }
+  
+  @media (max-width: 768px) {
+    .progress-steps {
+      &::before,
+      &::after {
+        right: 15px;
+      }
+    }
+  }
+}

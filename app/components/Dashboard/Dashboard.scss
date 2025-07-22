@@ -2158,3 +2158,46 @@
     }
   }
 }
+
+// Add these styles to your existing Dashboard.scss
+
+.phone-link, .email-link {
+  color: #007bff;
+  text-decoration: none;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.no-email {
+  color: #999;
+  font-style: italic;
+}
+
+.address-preview {
+  display: block;
+  line-height: 1.4;
+}
+
+.address-full {
+  margin-top: 4px;
+  padding: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  line-height: 1.5;
+}
+
+.customer-name strong {
+  color: #333;
+}
+
+.customer-details {
+  .detail-section {
+    margin-bottom: 24px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+}
