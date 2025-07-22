@@ -8,11 +8,11 @@ const supabase = createClient(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { name, phone, email, address } = await request.json();
-    const customerId = parseInt(params.id);
+    const customerId = parseInt((await params).id);
 
     if (isNaN(customerId)) {
       return NextResponse.json({
@@ -89,10 +89,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const customerId = parseInt(params.id);
+    const customerId = parseInt((await params).id);
 
     if (isNaN(customerId)) {
       return NextResponse.json({
