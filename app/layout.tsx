@@ -12,8 +12,29 @@ import { Analytics } from '@vercel/analytics/next';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "HighEnd Restaurant",
-  description: "Premium dining experience with exquisite cuisine",
+  title: "رستوران های اند | HighEnd Restaurant",
+  description: "تجربه غذاخوری لوکس با غذاهای عالی | Premium dining experience with exquisite cuisine",
+  keywords: [
+    "رستوران تهران",
+    "غذای ایرانی",
+    "سفارش آنلاین غذا",
+    "رستوران لوکس",
+    "Tehran restaurant",
+    "Persian food",
+    "online food delivery",
+    "luxury dining",
+    "HighEnd restaurant",
+    "Iranian cuisine",
+    "food delivery Tehran"
+  ],
+icons: {
+    icon: [
+      { url: '/images/favicon.webp' },
+    ],
+    apple: [
+      { url: '/images/favicon.webp', sizes: '64x64', type: 'image/webp' },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -22,7 +43,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="fa" dir="rtl">
       <body className={inter.className}>
         <LanguageProvider>
           <CartProvider>
