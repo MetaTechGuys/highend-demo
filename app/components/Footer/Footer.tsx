@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useLanguage } from '@/app/contexts';
 import './Footer.scss';
+import { track } from '@vercel/analytics/react';
 
 const Footer: React.FC = () => {
   const { isRTL, t } = useLanguage();
@@ -24,7 +25,9 @@ const Footer: React.FC = () => {
                 rel="noopener noreferrer"
                 className="social-link instagram"
                 aria-label="Instagram"
-              >
+                onClick={() => {
+                        track('Instagram');
+                      }}>
                 <svg
                   width={24}
                   height={24}
@@ -62,7 +65,9 @@ const Footer: React.FC = () => {
                   </svg>
                 </div>
                 <div className="phone-text">
-                  <Link href="tel:+1234567890" className="phone-link">
+                  <Link href="tel:+1234567890" className="phone-link" onClick={() => {
+                        track('telephone');
+                      }}>
                     {t('phone')}
                   </Link>
                 </div>
@@ -76,7 +81,7 @@ const Footer: React.FC = () => {
               {t('contactUs') || 'Contact Us'}
             </h4>
             <div className="contact-links">
-              <Link href="/contact" className="contact-link">
+              <Link href="/contact" className="contact-link" onClick={() => { track('message'); }}>
                 <div className="contact-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
@@ -84,7 +89,7 @@ const Footer: React.FC = () => {
                 </div>
                 <span>{t('sendMessage') || 'Send Message'}</span>
               </Link>
-              <Link href="/contact" className="contact-link">
+              <Link href="/contact" className="contact-link" onClick={() => { track('SUPPORT'); }}>
                 <div className="contact-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
@@ -103,14 +108,14 @@ const Footer: React.FC = () => {
             <p className="copyright">
               © {new Date().getFullYear()} {t('companyName') || 'Your Company'}. {t('allRightsReserved') || 'All rights reserved.'}
             </p>
-            <div className="footer-links">
+            {/* <div className="footer-links">
               <Link href="/privacy" className="footer-link">
                 {t('privacy') || 'Privacy Policy'}
               </Link>
               <Link href="/terms" className="footer-link">
                 {t('terms') || 'Terms of Service'}
               </Link>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

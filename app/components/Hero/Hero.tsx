@@ -92,7 +92,6 @@ const Hero: React.FC = () => {
                   <div className="button-container">
                     <a className="cta-button" href="/menu" onClick={() => {
         track('OrderNow');
-
       }}>
                       {t('getStarted')}
                     </a>
