@@ -79,14 +79,7 @@ const Hero: React.FC = () => {
           {/* Main large image - spans 2 rows and 3 columns */}
           <div className="hero-main-image">
             <div className="image-container">
-              <Image
-                src="/images/Main.webp"
-                alt="Main Hero Image"
-                fill
-                className="main-image"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 60vw"
-              />
+              <video src="/videos/main.webm" className='main-image' muted autoPlay aria-label='foods'></video>
               <div className="image-overlay">
                 <div className="overlay-content">
                   <div className="button-container">

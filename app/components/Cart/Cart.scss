@@ -186,11 +186,6 @@
       align-items: center;
       gap: 0.5rem;
 
-      // RTL: Reverse the order of quantity controls
-      .rtl & {
-        flex-direction: row-reverse;
-      }
-
       .quantity-btn {
         width: 28px;
         height: 28px;
@@ -459,17 +454,6 @@
   }
 }
 
-// Fix for quantity controls in RTL to maintain proper number display
-.rtl .quantity-controls {
-  
-  .quantity {
-    order: 1; // Keep quantity in middle
-  }
-  
-  .quantity-btn:last-child {
-    order: 0; // Move increase button to left
-  }
-}
 // Add this to your existing Cart.scss file
 
 .cart-actions {

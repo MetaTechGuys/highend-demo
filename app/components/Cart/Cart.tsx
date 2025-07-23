@@ -153,7 +153,7 @@ const Cart: React.FC = () => {
                         aria-label="Remove item"
                       >
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M6 19c0 1.1.9 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm7-11V4h-2v4H5v2h14V8h-6z"/>
                         </svg>
                       </button>
                     </div>
@@ -176,7 +176,7 @@ const Cart: React.FC = () => {
                     disabled={cartItems.length === 0}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                      <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zm7-11V4h-2v4H5v2h14V8h-6z"/>
                     </svg>
                     {t('clearCart') || 'Clear Cart'}
                   </button>
