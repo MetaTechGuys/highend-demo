@@ -56,7 +56,6 @@
   border-bottom: 1px solid #eee;
   background-color: #f8f9fa;
 
-
   .cart-title {
     font-size: 1.25rem;
     font-weight: 600;
@@ -83,7 +82,6 @@
       transform: scaleX(-1);
     }
   }
-
 }
 
 .cart-content {
@@ -367,7 +365,7 @@
 }
 
 // Responsive styles
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   .cart-sidebar {
     width: 350px;
 
@@ -442,15 +440,15 @@
 
 // Ensure proper font rendering for RTL languages
 .rtl {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+
   // If you have Persian/Arabic fonts, add them here
   &[lang="fa"] {
-    font-family: 'IRANSans', 'Tahoma', 'Arial', sans-serif;
+    font-family: "IRANSans", "Tahoma", "Arial", sans-serif;
   }
-  
+
   &[lang="ar"] {
-    font-family: 'Cairo', 'Tahoma', 'Arial', sans-serif;
+    font-family: "Cairo", "Tahoma", "Arial", sans-serif;
   }
 }
 
@@ -523,7 +521,7 @@
 }
 
 // Mobile responsive
-@media (max-width: 768px) {
+@media (max-width: 820px) {
   .cart-actions {
     flex-direction: column;
     gap: 0.5rem;
@@ -554,7 +552,7 @@
   min-width: 320px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
-  
+
   // Hide on mobile/tablet
   @media (max-width: 1024px) {
     display: none;

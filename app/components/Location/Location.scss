@@ -22,7 +22,7 @@
       color: #333;
       margin-bottom: 1rem;
 
-      @media (max-width: 768px) {
+      @media (max-width: 820px) {
         font-size: 2rem;
       }
     }
@@ -86,7 +86,7 @@
       padding-bottom: 0.5rem;
 
       &::after {
-        content: '';
+        content: "";
         position: absolute;
         bottom: 0;
         left: 0;
@@ -118,7 +118,7 @@
       border: 1px solid #e0e0e0;
       margin-bottom: 1.5rem;
 
-      @media (max-width: 768px) {
+      @media (max-width: 820px) {
         height: 300px;
       }
 
@@ -174,7 +174,7 @@
           }
         }
 
-                &.secondary {
+        &.secondary {
           background-color: #6c757d;
           color: #fff;
 
@@ -339,7 +339,14 @@
             border: 2px solid transparent;
 
             &.instagram {
-              background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+              background: linear-gradient(
+                45deg,
+                #f09433 0%,
+                #e6683c 25%,
+                #dc2743 50%,
+                #cc2366 75%,
+                #bc1888 100%
+              );
               color: #fff;
 
               &:hover {
@@ -419,7 +426,7 @@
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: 820px) {
     padding: 2.8rem 0;
 
     .location-container {
@@ -535,7 +542,7 @@
   border-radius: 6px;
   border: none;
   color: #333;
-  
+
   &:hover {
     background-color: #f1592f;
     color: #fff;
@@ -544,6 +551,10 @@
 
 // Spin animation for loading
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
-import { useLanguage } from '@/app/contexts';
-import './Hero.scss';
-import { track } from '@vercel/analytics/react';
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
+import { useLanguage } from "@/app/contexts";
+import "./Hero.scss";
+import { track } from "@vercel/analytics/react";
 
 interface SlideData {
   id: number;
@@ -20,28 +20,28 @@ const Hero: React.FC = () => {
   const slides: SlideData[] = [
     {
       id: 1,
-      image: '/images/slide-1.webp'
+      image: "/images/slide-1.webp",
     },
     {
       id: 2,
-      image: '/images/slide-2.webp'
+      image: "/images/slide-2.webp",
     },
     {
       id: 3,
-      image: '/images/slide-3.webp'
+      image: "/images/slide-3.webp",
     },
     {
       id: 4,
-      image: '/images/slide-4.webp'
+      image: "/images/slide-4.webp",
     },
     {
       id: 5,
-      image: '/images/slide-5.webp'
+      image: "/images/slide-5.webp",
     },
     {
       id: 6,
-      image: '/images/slide-6.webp'
-    }
+      image: "/images/slide-6.webp",
+    },
   ];
 
   // Auto-play functionality
@@ -58,7 +58,7 @@ const Hero: React.FC = () => {
   const goToSlide = useCallback((index: number) => {
     setCurrentSlide(index);
     setIsAutoPlaying(false);
-    
+
     setTimeout(() => {
       setIsAutoPlaying(true);
     }, 5000);
@@ -73,20 +73,30 @@ const Hero: React.FC = () => {
   };
 
   return (
-    <section className={`hero ${isRTL ? 'rtl' : 'ltr'}`}>
+    <section className={`hero ${isRTL ? "rtl" : "ltr"}`}>
       <div className="hero-container">
         <div className="hero-grid">
           {/* Main large image - spans 2 rows and 3 columns */}
           <div className="hero-main-image">
             <div className="image-container">
-              <video src="/videos/main.webm" className='main-image' muted autoPlay aria-label='foods'></video>
+              <video
+                src="/videos/main.webm"
+                className="main-image"
+                muted
+                autoPlay
+                aria-label="foods"
+              ></video>
               <div className="image-overlay">
                 <div className="overlay-content">
                   <div className="button-container">
-                    <a className="cta-button" href="/menu" onClick={() => {
-        track('OrderNow');
-      }}>
-                      {t('getStarted')}
+                    <a
+                      className="cta-button"
+                      href="/menu"
+                      onClick={() => {
+                        track("OrderNow");
+                      }}
+                    >
+                      {t("getStarted")}
                     </a>
                   </div>
                 </div>
@@ -102,36 +112,35 @@ const Hero: React.FC = () => {
                 alt="Top Hero Image"
                 fill
                 className="top-image"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
+                sizes="(max-width: 820px) 100vw, (max-width: 1200px) 25vw, 20vw"
               />
             </div>
           </div>
 
           {/* Bottom right slider - spans 1 row and 1 column */}
-          <div 
+          <div
             className="hero-slider"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             <div className="slider-container">
-              <div 
+              <div
                 className="slider-track"
-                style={{ 
-                  transform: `translateX(-${currentSlide * (100 / slides.length)}%)`
+                style={{
+                  transform: `translateX(-${
+                    currentSlide * (100 / slides.length)
+                  }%)`,
                 }}
               >
                 {slides.map((slide) => (
-                  <div 
-                    key={slide.id} 
-                    className="slide"
-                  >
+                  <div key={slide.id} className="slide">
                     <div className="slide-image-container">
                       <Image
                         src={slide.image}
                         alt={`Slide ${slide.id}`}
                         fill
                         className="slide-image"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 25vw, 20vw"
+                        sizes="(max-width: 820px) 100vw, (max-width: 1200px) 25vw, 20vw"
                       />
                     </div>
                   </div>
@@ -143,7 +152,9 @@ const Hero: React.FC = () => {
                 {slides.map((_, index) => (
                   <button
                     key={index}
-                    className={`pagination-dot ${index === currentSlide ? 'active' : ''}`}
+                    className={`pagination-dot ${
+                      index === currentSlide ? "active" : ""
+                    }`}
                     onClick={() => {
                       track(`Slide${index + 1}`);
                       goToSlide(index);
