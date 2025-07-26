@@ -414,13 +414,13 @@
     .location-content {
       .location-column,
       .contact-column {
-        padding: 1.5rem;
+        padding: 2rem;
       }
     }
   }
 
   @media (max-width: 768px) {
-    padding: 1rem 0;
+    padding: 2.8rem 0;
 
     .location-container {
       padding: 0 0.5rem;
@@ -480,6 +480,7 @@
   }
 
   @media (max-width: 480px) {
+    padding: 2rem 0;
     .location-column,
     .contact-column {
       padding: 1rem;
