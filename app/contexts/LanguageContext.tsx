@@ -41,7 +41,7 @@ const translations = {
     privacy: "حریم خصوصی",
     terms: "شرایط خدمات",
     ourMenu: "منوی ما",
-orderNow:"سفارش دهید",
+orderNow:"+ افزودن",
    backToMenu:"بازگشت",
     // Default items
     deliciousAndFresh: "مواد تازه و خوشمزه",
@@ -456,7 +456,7 @@ en: {
   privacy: "Privacy Policy",
   terms: "Terms of Service",
   ourMenu: "Our Menu",
-  orderNow: "Order Now",
+  orderNow: "+ Add",
   backToMenu: "Back to Menu",
   
   // Default items

@@ -358,7 +358,7 @@
       background: linear-gradient(135deg, #f1592f 0%, crimson 100%);
       color: white;
       border: none;
-      padding: 0.75rem 1.5rem;
+      padding: 0.8rem 2.4rem;
       font-size: 0.9rem;
       font-weight: 600;
       border-radius: 25px;
@@ -380,9 +380,9 @@
       }
 
       @media (max-width: 480px) {
-        width: 100%;
-        padding: 0.8rem 1.5rem;
-        font-size: 0.85rem;
+        // width: 10%;
+        padding: 0.8rem 2.4rem;
+        font-size: 0.88rem;
       }
     }
   }
