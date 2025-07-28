@@ -4,6 +4,7 @@
   // max-height: 100vh;
   padding: 0rem 0;
   background: #f8f9fa;
+  margin-top: 4rem;
 
   &.rtl {
     direction: ltr;
@@ -311,18 +312,11 @@
       // padding: 0 1.5rem;
     }
 
-    .hero-grid {
-      // gap: 1.2rem;
-    }
   }
 
   @media (max-width: 1024px) {
     padding: 0rem 0;
 
-    .hero-grid {
-      // height: 65vh;
-      // min-height: 450px;
-    }
 
     .hero-main-image {
       .overlay-content {
@@ -450,17 +444,17 @@
   }
 
   // Smooth entrance animations
-  .hero-main-image {
-    // animation: fadeInUp 0.8s ease-out;
-  }
+  // .hero-main-image {
+  //   animation: fadeInUp 0.8s ease-out;
+  // }
 
-  .hero-top-image {
-    // animation: fadeInRight 0.8s ease-out 0.2s both;
-  }
+  // .hero-top-image {
+  //   animation: fadeInRight 0.8s ease-out 0.2s both;
+  // }
 
-  .hero-slider {
-    // animation: fadeInRight 0.8s ease-out 0.4s both;
-  }
+  // .hero-slider {
+  //   animation: fadeInRight 0.8s ease-out 0.4s both;
+  // }
 
   // @keyframes fadeInUp {
   //   from {
