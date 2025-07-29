@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLanguage } from "@/app/contexts";
 import "./Footer.scss";
 import { track } from "@vercel/analytics/react";
-import versionData from "@/app/version.json";
+import versionData from "../../version.json";
 
 const Footer: React.FC = () => {
   const { isRTL, t } = useLanguage();
