@@ -1,13 +1,13 @@
 {
   "name": "highend-demo",
-  "version": "0.11.6",
+  "version": "0.11.7",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "patch": "npm version patch --no-git-tag-version && npm run postinstall && git add . && git commit -m \"chore: bump to v`node -p \"require('./package.json').version\"`\" && git push",
+    "patch": "npm version patch --no-git-tag-version && npm run postinstall && git add . && git commit -m \"chore: bump to v`node -p \\\"require('./package.json').version\\\"`\" && git push",
     "minor": "npm version minor --no-git-tag-version && npm run postinstall && git add . && git commit -m \"chore: bump to v`node -p \"require('./package.json').version\"`\" && git push",
     "major": "npm version major --no-git-tag-version && npm run postinstall && git add . && git commit -m \"chore: bump to v`node -p \"require('./package.json').version\"`\" && git push",
     "postinstall": "node scripts/write-version.js"
