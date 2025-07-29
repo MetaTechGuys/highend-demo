@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLanguage } from "@/app/contexts";
 import "./Footer.scss";
 import { track } from "@vercel/analytics/react";
-import versionData from "../../version.json";
+import version from '../../version.json';
 
 const Footer: React.FC = () => {
   const { isRTL, t } = useLanguage();
@@ -144,7 +144,7 @@ const Footer: React.FC = () => {
               {t("allRightsReserved") || "All rights reserved."}
             </p>
             <div className="footer-links">
-              <p>v{versionData.version}</p>
+              <p>v{version.version}</p>
             </div>
           </div>
         </div>
