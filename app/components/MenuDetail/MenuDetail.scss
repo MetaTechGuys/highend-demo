@@ -1225,6 +1225,7 @@
       padding: 0.5rem;
     }
   }
+
 }
 .loading-container,
 .error-container {
@@ -1242,9 +1243,9 @@
     border-top: 4px solid var(--primary-color, #f1592f);
     border-radius: 50%;
     animation: spin 1s linear infinite;
-    margin: 8rem 0;
-  }
+    margin: 40vh 0;
 
+  }
   p {
     color: var(--text-muted, #666);
     font-size: 1.1rem;
