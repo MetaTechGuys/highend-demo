@@ -84,10 +84,12 @@ const Hero: React.FC = () => {
                 className="main-image"
                 muted
                 autoPlay
+                loop
                 aria-label="foods"
               ></video>
               <div className="image-overlay">
                 <div className="overlay-content">
+                    <p className="title-hero">High End</p>
                   <div className="button-container">
                     <a
                       className="cta-button"

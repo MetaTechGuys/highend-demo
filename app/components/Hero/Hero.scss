@@ -60,15 +60,15 @@
     }
 
     .main-image {
-      width: 100%;
+      // width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
       transition: transform 0.3s ease;
-      transform: scale(1.05);
+      transform: scale(1);
     }
 
     &:hover .main-image {
-      transform: scale(1.02);
+      transform: scale(1.08);
     }
 
     .image-overlay {
@@ -94,12 +94,22 @@
     }
 
     .overlay-content {
-      text-align: center;
+      text-align: center !important;
       color: white;
       min-height: 24%;
       position: relative;
       z-index: 2;
-      width: 100%;
+      width: 48%;
+
+      .title-hero{
+        color: #f1592f;
+        background: #ffffff88;
+        font-size: 8rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+       opacity: 1;
+       margin: auto;
+      }
 
       .button-container {
         display: flex;
@@ -120,8 +130,8 @@
       }
 
       .cta-button {
-        background: white;
-        color: #f1592f;
+        background: #f1592f;
+        color: #fff;
         border: none;
         margin-top: auto;
         padding: 1rem 2rem;
@@ -157,12 +167,17 @@
   @keyframes pulse {
     0% {
       opacity: 1;
+      transform: scale(1.08);
     }
     50% {
-      opacity: 0.4;
+      opacity: 0.8;
+      transform: scale(1);
+
     }
     100% {
       opacity: 1;
+      transform: scale(1.08);
+
     }
   }
 
