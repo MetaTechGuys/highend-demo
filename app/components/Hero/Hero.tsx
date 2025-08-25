@@ -81,6 +81,10 @@ const Hero: React.FC = () => {
           <div className="hero-main-image">
             <div
               className={`image-container ${isVideoLoading ? "loading" : ""}`}
+              style={{
+                minHeight: "600px", // Explicit fallback height for Vercel
+                width: "100%",
+              }}
             >
               <video
                 src="/videos/main.webm"
@@ -95,6 +99,12 @@ const Hero: React.FC = () => {
                 onLoadStart={() => setIsVideoLoading(true)}
                 onCanPlay={() => setIsVideoLoading(false)}
                 onError={() => setIsVideoLoading(false)}
+                onLoadedData={() => setIsVideoLoading(false)}
+                style={{
+                  minHeight: "600px", // Fallback height
+                  width: "100%",
+                  height: "100%",
+                }}
                 aria-label="foods"
               ></video>
               <div className="image-overlay">
