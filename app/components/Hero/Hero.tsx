@@ -15,6 +15,7 @@ const Hero: React.FC = () => {
   const { isRTL, t } = useLanguage();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [isVideoLoading, setIsVideoLoading] = useState(true);
 
   // Slider data - 6 slides with only images
   const slides: SlideData[] = [
@@ -78,18 +79,27 @@ const Hero: React.FC = () => {
         <div className="hero-grid">
           {/* Main large image - spans 2 rows and 3 columns */}
           <div className="hero-main-image">
-            <div className="image-container">
+            <div
+              className={`image-container ${isVideoLoading ? "loading" : ""}`}
+            >
               <video
                 src="/videos/main.webm"
                 className="main-image"
                 muted
                 autoPlay
                 loop
+                preload="metadata"
+                poster="/images/slide-1.webp"
+                width="1920"
+                height="1080"
+                onLoadStart={() => setIsVideoLoading(true)}
+                onCanPlay={() => setIsVideoLoading(false)}
+                onError={() => setIsVideoLoading(false)}
                 aria-label="foods"
               ></video>
               <div className="image-overlay">
                 <div className="overlay-content">
-                    <p className="title-hero">High End</p>
+                  <p className="title-hero">High End</p>
                   <div className="button-container">
                     <a
                       className="cta-button"
