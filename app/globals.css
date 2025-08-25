@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   padding: 0;
@@ -59,7 +60,7 @@ body::-webkit-scrollbar {
 .main-content {
   flex: 1;
   padding-top: 70px; /* Account for fixed navbar */
-  
+
   @media (max-width: 480px) {
     padding-top: 60px; /* Smaller navbar height on mobile */
   }
@@ -81,23 +82,24 @@ html[dir="ltr"] {
 
 /* RTL body font */
 html[dir="rtl"] body {
-  font-family: 'Vazir', 'Tahoma', sans-serif;
+  font-family: "Vazir", "Tahoma", sans-serif;
 }
 
 html[dir="ltr"] body {
-  font-family: 'Inter', 'Segoe UI', sans-serif;
+  font-family: "Inter", "Segoe UI", sans-serif;
 }
 
 /* Smooth transitions for direction changes */
 * {
-  transition: margin 0.3s ease, padding 0.3s ease;
+  /* Removed margin/padding transitions to avoid CLS */
+  transition: none;
 }
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 70px;
-  
+
   @media (max-width: 480px) {
     scroll-padding-top: 60px;
   }
@@ -128,7 +130,7 @@ body {
   .footer {
     display: none !important;
   }
-  
+
   .main-content {
     padding-top: 0 !important;
   }
@@ -141,7 +143,7 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   html {
     scroll-behavior: auto;
   }
