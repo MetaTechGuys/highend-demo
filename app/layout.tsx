@@ -7,7 +7,6 @@ import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import Cart from "./components/Cart/Cart";
 import { Analytics } from "@vercel/analytics/next";
-import HydrationMarker from "./HydrationMarker";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -44,7 +43,6 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" data-scroll-behavior="smooth">
       <body className={inter.className}>
-        <HydrationMarker />
         <LanguageProvider>
           <CartProvider>
             <Navbar />

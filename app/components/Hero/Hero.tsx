@@ -125,7 +125,6 @@ const Hero: React.FC = () => {
                 fill
                 className="top-image"
                 sizes="(max-width: 820px) 100vw, (max-width: 1200px) 25vw, 20vw"
-                priority
               />
             </div>
           </div>
@@ -145,7 +144,7 @@ const Hero: React.FC = () => {
                   }%)`,
                 }}
               >
-                {slides.map((slide, index) => (
+                {slides.map((slide) => (
                   <div key={slide.id} className="slide">
                     <div className="slide-image-container">
                       <Image
@@ -154,7 +153,6 @@ const Hero: React.FC = () => {
                         fill
                         className="slide-image"
                         sizes="(max-width: 820px) 100vw, (max-width: 1200px) 25vw, 20vw"
-                        priority={index === 0}
                       />
                     </div>
                   </div>
