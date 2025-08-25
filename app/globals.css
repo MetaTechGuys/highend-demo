@@ -148,3 +148,9 @@ body {
     scroll-behavior: auto;
   }
 }
+
+html:not([data-hydrated="true"]) * {
+  animation: none !important;
+  transition: none !important;
+  transform: none !important;
+}

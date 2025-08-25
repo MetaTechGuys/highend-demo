@@ -6,14 +6,15 @@ import { CartProvider } from "./contexts/CartContext";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import Cart from "./components/Cart/Cart";
-import { Analytics } from '@vercel/analytics/next';
-
+import { Analytics } from "@vercel/analytics/next";
+import HydrationMarker from "./HydrationMarker";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "رستوران های اند | HighEnd Restaurant",
-  description: "تجربه غذاخوری لوکس با غذاهای عالی | Premium dining experience with exquisite cuisine",
+  description:
+    "تجربه غذاخوری لوکس با غذاهای عالی | Premium dining experience with exquisite cuisine",
   keywords: [
     "رستوران تهران",
     "غذای ایرانی",
@@ -25,14 +26,12 @@ export const metadata: Metadata = {
     "luxury dining",
     "HighEnd restaurant",
     "Iranian cuisine",
-    "food delivery Tehran"
+    "food delivery Tehran",
   ],
-icons: {
-    icon: [
-      { url: '/images/favicon.webp' },
-    ],
+  icons: {
+    icon: [{ url: "/images/favicon.webp" }],
     apple: [
-      { url: '/images/favicon.webp', sizes: '64x64', type: 'image/webp' },
+      { url: "/images/favicon.webp", sizes: "64x64", type: "image/webp" },
     ],
   },
 };
@@ -45,6 +44,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" data-scroll-behavior="smooth">
       <body className={inter.className}>
+        <HydrationMarker />
         <LanguageProvider>
           <CartProvider>
             <Navbar />
